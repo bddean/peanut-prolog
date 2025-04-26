@@ -3,7 +3,10 @@ type UnboundSym = typeof UnboundSym;
 type Choices = Generator<void, void, void>;
 let _vid = 0; // For debugging etc.
 export class Var {
-  ref: Val | UnboundSym = UnboundSym;;
+	static *allocate() {
+		while(true)	yield new Var();
+	}
+  ref: Val | UnboundSym = UnboundSym;
   id = _vid++;
   *set(v: Val) {
     if (this.ref !== UnboundSym) return; // TODO skip this check for unify??

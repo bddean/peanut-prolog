@@ -1,11 +1,29 @@
+NEXT
+[/] erase `true`
+
+[ ] test imrpvoements
+	[ ] set up good integration test setup
+		* artifacts for debugging: IR, logs (?), trace (?),
+		* benchmarks
+	[ ] unit tests -> separate files
+	[ ] fill gaps in unit tests
+
+[ ] refactoring
+	[ ] rm ir_to_js; also have compile preds accept DCGs for concat
+	[ ] more files
+	
+[ ] TODO comments
+
+[ ] support declarations
+[ ] modules
+[ ] fix atom and term representation...
+
 - comp.pl:
-	- add a "walk" metapredicate for compiler passes over the IR
 	- add passes that:
 		1. convert *-> (for-each) to -> (if-then) if predicate property indicates det
-		2. given a backend, walk tree to compile
-	- add variable assignment for LVars
-		- and atoms and terms...
+
 	- see other TODO comments
+
 - improve testing situation.
 - update js backend to use new format
 - improve variable code: allocate as vars at top of prediate. use\

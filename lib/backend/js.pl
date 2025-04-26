@@ -3,31 +3,11 @@
 % Public interface
 js(T, S) :- js(T, S, []).
 
-js(V) :- var(V), throw(is_var).
-js(\V) :- var(V), throw(is_var).
-
 % Compile IR to JavaScript
-% nosubmit not like htis
+% TODO not like this...
 ir_to_js(IR, JSCode) :-
-	writeln('Starting JavaScript generation...'),
-	writeln('IR:'),
-	portray_clause(IR),
-	(catch(
-	    (phrase(js(IR), Codes) ->
-	        string_codes(JSCode, Codes),
-	        writeln('JavaScript generation succeeded')
-	    ;
-	        writeln('DCG failed'),
-	        fail
-	    ),
-	    JSError,
-	    (writeln('Error during JavaScript generation:'), writeln(JSError), fail)
-	) ->
-	    true
-	;
-	    writeln('JavaScript generation failed'),
-	    fail
-	).
+	js(IR, Codes),
+	string_codes(JSCode, Codes).
 
 %%
 %% JavaScript code generation
@@ -35,66 +15,69 @@ ir_to_js(IR, JSCode) :-
 
 % Tracing clause for debugging
 % Generator function
-js(defun(generator, Name/Arity, Arg, Body)) -->
-	"function* $", js_atom(Name), "_", js_num(Arity), "(", js_atom(Arg), ") {\n",
-	js(Body),
+js(defun(generator, Name/Arity, Args, Body)) -->
+	"function* ", js_atom(Name), "_", js(\Arity), "(",
+	js_args(Args), ") {\n",
+	Body,
 	"\n}".
 
 % Function call
 js(funcall(Name, Args)) -->
-	{ format('Processing funcall: ~w~n', [Name]) },
-	{ format('Args: ~w~n', [Args]) },
 	{ atom_codes(Name, NameCodes) },
 	NameCodes, "(", js_args(Args), ")".
+
+js(Name := Value) --> "const ", Name, "=", Value, ";\n".
+js(new_var) --> "new Var()".
+js(allocate_vars(VarNameList)) -->
+	"const [", js_args(VarNameList), "] = Var.allocate();\n".
 
 % Control structures
 js(!) --> "break;".
 js(nothing) --> "".
 js([]) --> "".
+js(yield) --> "yield;".
+js(yield_all(G)) --> "yield* ", G, ";".
+js((A, B)) --> A, ";", B.
 
 js((Cond -> Block)) -->
-	"if (", js(Cond), ") {\n",
-	js(Block),
+	"if (", Cond, ") {\n",
+	Block,
 	"\n}".
 
 js((Gen *-> Block)) -->
-	"for (const _ of ", js(Gen), ") {\n",
-	js(Block),
+	"for (const _ of ", Gen, ") {\n",
+	Block,
 	"\n}".
 
-js((S1 ; S2)) -->
-	js(S1), ";\n",
-	js(S2).
-
 % Term literals
-js(\Term) -->
-	{ Term = '$VAR'(N), integer(N) }, !,
-	"new Var() /* ", js_num(N), " */".
-js(\Term) -->
-	{ number(Term) },
-	js_num(Term).
-js(\Term) -->
-	{ string(Term) },
-	"\"", js_escape(Term), "\"".
+js(\'$VAR'(N)) -->
+	{ format(string(Name), "_~d", [N]) },
+	!,
+	js($Name).
+js(\[]) --> "[|]", !.  % SWI specific thing
+js(\N) --> { number(N), number_codes(N, Codes) }, Codes.
+js(\Term) -->	 { string(Term) }, "\"", js_escape(Term), "\"".
 js(\Term) -->
 	{ atom(Term), atom_string(Term, TermStr) },
-	"\"", js_escape(TermStr), "\"".  % TODO: Consider changing atoms to symbols in JavaScript
+	% TODO: Consider changing atoms to symbols in JavaScript
+	js(\TermStr).
 js(\Term) -->
 	%% Handle any other compound terms
 	{ compound(Term), \+ Term = '$VAR'(_) },
 	{ functor(Term, Functor, _) },
 	{ Term =.. [Functor|Args] },
-	"new Term(\"", js_escape(Functor), "\", [", js_term_args(Args), "])".
+	"new Term(", js(\Functor), ", [", js_term_args(Args), "])".
 
 % Variables and literals
 % $ operator is for JS identifiers (variable names)
+% TODO this impl is wrong... Or at least my predicate names are.
+%  js_atom should just be for atom literatos.
 js($X) --> js_atom(X).
 
 % Helper predicates
 js_args([]) --> "".
-js_args([Arg]) --> js(Arg).
-js_args([Arg1, Arg2 | Args]) -->
-	js(Arg1), ", ", js_args([Arg2 | Args]).
+js_args([Arg]) --> Arg.
+js_args([Arg1, Arg2 | Args]) --> Arg1, ", ", js_args([Arg2 | Args]).
 
 % Helper for term arguments
 js_term_args([]) --> "".
@@ -104,9 +87,6 @@ js_term_args([Arg1, Arg2 | Args]) -->
 
 js_atom(A) --> { atom(A), atom_codes(A, Codes) }, Codes.
 js_atom(S) --> { string(S), string_codes(S, Codes) }, Codes.
-js_num(N) --> { number(N), number_codes(N, Codes) }, Codes.
-js_string(S) --> js_escape(S).
-
 
 % Escape special characters in strings
 js_escape(Str) -->
@@ -126,17 +106,6 @@ js_escape_code(0'\n) --> "\\n".   % Newline
 js_escape_code(0'\r) --> "\\r".   % Carriage return
 js_escape_code(0'\t) --> "\\t".   % Tab
 js_escape_code(C) --> [C].        % Regular character
-
-%% Unit tests
-% Direct test for debugging
-debug_var_term :-
-    V = '$VAR'(0),
-    format('V = ~w~n', [V]),
-    (compound(V) -> format('V is compound~n', []) ; format('V is NOT compound~n', [])),
-    (V = '$VAR'(N), integer(N) -> format('V matches $VAR pattern with N = ~w~n', [N]) ; format('V does NOT match $VAR pattern~n', [])),
-    phrase(js(\V), Codes),
-    string_codes(Result, Codes),
-    format('Result: ~w~n', [Result]).
 
 :- begin_tests(js_backend).
 
@@ -185,11 +154,6 @@ test(js_atom_dollar) :-
 	string_codes(Result, Codes),
 	Result = "test",
 	!.
-
-test(js_num_direct) :-
-	phrase(js_num(42), Codes),
-	string_codes(Result, Codes),
-	Result = "42".
 
 test(simple_unify_with_var) :-
 	format('Testing simple unify with var~n', []),

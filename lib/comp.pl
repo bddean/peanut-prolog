@@ -1,14 +1,18 @@
 :- module(comp, [
-    compile_clauses/2,
-    compile_goal/2,
-    term_to_call/2,
-    compile_with_backend/3
+		% TODO -- this should be the main entry point!
+		compile_terms/3,
+
+    clauses_ir/2,
+    goal_ir/2,
+    term_call_ir/2,
+		terms_ir/2
 ]).
 :- use_module(library(debug), [assertion/1]).
+:- use_module(library(readutil), [read_file_to_terms/3]).
+:- use_module('./optimizations').
 
 :- meta_predicate walk_ir(2, ?, ?).
 walk_ir(G) --> walk_kids(G), tform_node(G).
-
 tform_node(G, E0, E) :- call(G, E0, E) *-> true ; E = E0.
 
 walk_kids(G, E0, E) :- walk_kids_(G, E0, E) *-> true ; E = E0.
@@ -16,69 +20,134 @@ walk_kids_(G, E0, E) :-
 	member(E0-E, [
 		(M0, N0)    - (M, N),
 		(M0 -> N0)  - (M -> N),
-		(M0 *-> N0) - (M *-> N)
+		(M0 *-> N0) - (M *-> N),
+		(M0 := N0) - (M := N)
 	]),
 	maplist(walk_ir(G), [M0, N0], [M, N]).
 
+walk_kids_(G, yield_all(X0), yield_all(X)) :- walk_ir(G, X0, X).
+
+walk_kids_(
+	G,
+	defun(Type, Name, Args0, Body0),
+	defun(Type, Name, Args, Body)
+) :-
+	maplist(walk_ir(G), [Body0|Args0], [Body|Args]).
+
+walk_kids_(
+	G,
+	funcall(Name, Args0),
+	funcall(Name, Args)
+) :-
+	maplist(walk_ir(G), Args0, Args).
+
+walk_kids_(
+	G,
+	allocate_vars(Names0),
+	allocate_vars(Names)
+) :-
+	maplist(walk_ir(G), Names0, Names).
+
+% clauses_grouped groups a list of clauses (H :- B terms) into sublists
+% grouped by head name/arity.
+clauses_grouped([], []).
+clauses_grouped([X], [[X]]).
+clauses_grouped(Cs, [G|Gs]) :-
+	% Find longest prefix of matching clauses.
+	once((
+		append(G, Suffix, Cs),
+		( Suffix = []
+		; G=[(H0 :- _)|_],
+		  Suffix=[(H1 :- _)|_],
+		  functor(H0, A0, N0),
+		  functor(H1, A1, N1),
+		  A0/N0 \= A1/N1
+		)
+	)),
+	clauses_grouped(Suffix, Gs).
+
+% terms_ir(Terms, IR) where Terms is like the output of
+% read_file_to_terms/3.
+terms_ir -->
+	maplist(normalize_clause),
+	clauses_grouped,
+	maplist(terms_ir__tform_).
+
+terms_ir__tform_(X, IR) :-
+	clauses_ir(X, IR) *-> true
+	; declaration_ir(X, IR).
+
+declaration_ir(_) :- throw("Declarations not supported yet").
+
 % Compiles a list of Prolog clauses to an IR that can be passed to a backend
-% compile_clauses(+Clauses, -IR)
+% clauses_ir(+Clauses, -IR)
 % TODO: Split this into two steps:
 % 1. Convert the clauses to a single disjunction, including unification to each head...
 % 2. Then actually compile to the IR!
-compile_clauses([], nothing).
-compile_clauses(Clauses, defun(generator, Spec, "X", Impls)) :-
+clauses_ir([], nothing).
+clauses_ir(Clauses, defun(generator, Spec, ["X"], (
+	allocate_vars(VarNames),
+	Impls
+))) :-
+	% Set up local variables to add to the generated closure.
+	% TODO: Re-use variables after backtracking instead of generating
+	% 	separately for each clause -- OR allocate at clause start instead
+	numbervars(Clauses, 0, NumVars),
+	numlist(0, NumVars, VarNums),
+	maplist(var_name_, VarNums, VarNames),
+
+	% TODO utility function for this -- i think it's repeated a
+	% couple times
 	Clauses = [FirstClause|_],
-	normalize_clause(FirstClause, NormHead, _),
+	normalize_clause(FirstClause, (NormHead :- _)),
 	functor(NormHead, Name, Arity),
-	% Check that all clauses are for the same predicate
-	forall(member(C, Clauses), (
-	    normalize_clause(C, H, _),
-	    functor(H, Name, Arity)
-	)),
+
 	% Build the IR
 	Spec = Name/Arity,
 	normalize_and_compile_clauses(Clauses, Impls).
 
-% Normalize and compile clauses
 normalize_and_compile_clauses([], nothing).
-normalize_and_compile_clauses([Clause|Rest], (ClauseIR ; RestIR)) :-
-	normalize_clause(Clause, Head, Body),
-	compile_clause(Head, Body, ClauseIR),
+normalize_and_compile_clauses([Clause|Rest], (ClauseIR, RestIR)) :-
+	normalize_clause(Clause, Norm),
+	compile_clause(Norm, ClauseIR),
 	normalize_and_compile_clauses(Rest, RestIR).
 
-% Compile a single clause
-compile_clause(Head, Body, IR) :-
-	copy_term((Head, Body), (HeadCopy, BodyCopy)),
-	numbervars((HeadCopy, BodyCopy), 0, _),
-	compile_goal(BodyCopy, BodyIR),
-	IR = (funcall("unify", [$"X", \HeadCopy]) *-> BodyIR).
+compile_clause((Head :- Body), (
+	funcall("unify", [$"X", \Head]) *-> BodyIR
+)) :-	goal_ir(Body, BodyIR).
+
+var_name_(N, $Name) :- format(string(Name), "_~d", [N]).
+var_init_(N, ($Name := new_var)) :- format(string(Name), "_~d", [N]).
+arglist([], nothing).
+arglist([X], X).
+arglist([X|Xs], (X, As)) :- arglist(Xs, As).
 
 % Convert a clause to Head :- Body format
-normalize_clause((H :- B), H, B) :- !.
-normalize_clause(Fact, Fact, true) :- !.
+normalize_clause((H :- B), (H :- B)) :- !.
+normalize_clause(Fact, (Fact :- true)) :- !.
 
 % Convert Prolog statements to IR
-% compile_goal(+Statement, -IR)
-compile_goal(G, IR) :- compile_goal(yield, G, IR).
+% goal_ir(+Statement, -IR)
+goal_ir(G, IR) :- goal_ir(yield, G, IR).
 
-compile_goal(Cont, (A0, B0), A) :-
+goal_ir(Cont, (A0, B0), A) :-
 	!,
-	compile_goal(Cont, B0, B),
-	compile_goal(B, A0, A).
+	goal_ir(Cont, B0, B),
+	goal_ir(B, A0, A).
 
-compile_goal(Cont, (A0 ; B0), (A , B)) :- % TODO names etc
+goal_ir(Cont, (A0 ; B0), (A , B)) :- % TODO names etc
 	!,
-	maplist(compile_goal(Cont), [A0, B0], [A, B]).
+	maplist(goal_ir(Cont), [A0, B0], [A, B]).
 
-compile_goal(_, !, break) :- !.
+goal_ir(_, !, break) :- !.
 
 % TODO convert to -> in second pass
-compile_goal(Cont, Term, (Call *-> Cont)) :-
-	term_to_call(Term, Call).
+goal_ir(Cont, Term, (Call *-> Cont)) :-
+	term_call_ir(Term, Call).
 
 % Convert a Prolog term to a function call
-% term_to_call(+Term, -Call)
-term_to_call(Term, funcall(Name, Args)) :-
+% term_call_ir(+Term, -Call)
+term_call_ir(Term, funcall(Name, Args)) :-
 	Term =.. [Name|Args0],
 	wrap_args(Args0, Args).
 
@@ -87,76 +156,98 @@ term_to_call(Term, funcall(Name, Args)) :-
 wrap_args(Ts, As) :- maplist(wrap_args__escape_, Ts, As).
 wrap_args__escape_(X, \X).
 
-% TODO: Comment too verbose.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% compile_with_backend/3
-%%
-%% compile_with_backend(+BackendPred, +Clauses:list, -Output:string)
-%%   BackendPred is a predicate of arity‑2 that will be called as
-%%        call(BackendPred, Node, OutString)
-%%   where Node is an IR node whose *direct* children have already been
-%%   compiled to strings.  BackendPred must succeed deterministically and
-%%   bind OutString to a string representing the generated target code for
-%%   that Node.
-%%
-%% Example use:
-%%     comp:compile_with_backend(js2:emit, Clauses, JS).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 % Helper: identity transformation for already compiled strings.
 compile_node(_, N, N) :- string(N), !.
 compile_node(Backend, N, Out) :-
     call(Backend, N, Out)
 		*-> true
-		; throw(backend_failed(Backend, N), "Backend failed").
+		; throw(backend_failed(Backend, N)).
 
-compile_with_backend(Backend, Clauses, IR) :-
-    compile_clauses(Clauses, IR0),
-    phrase(walk_ir(compile_node(Backend)), IR0, IR).
+:- meta_predicate compile_term(2, +, -).
+compile_term_ir(Backend) -->
+	walk_ir(erase_true),
+	walk_ir(loop_to_yield_all),
+	walk_ir(compile_node(Backend)).
+
+dbg_(A, A) :- portray_clause('$$$'(A)).
+
+compile_terms(Backend, Terms, Out) :-
+  terms_ir(Terms, IRs),
+	maplist(compile_term_ir(Backend), IRs, Outs),
+	atomics_to_string(Outs, Out).
+
+compile_file(Backend, FName, Out) :-
+	read_file_to_terms(FName, Terms, []),
+	compile_terms(Backend, Terms, Out).
 
 :- begin_tests(comp).
 test(compile_empty, nondet) :-
-	compile_clauses([], IR),
+	clauses_ir([], IR),
 	IR == nothing.
 
 test(compile_simple_clause, nondet) :-
-	compile_clauses([foo(X) :- bar(X)], IR),
-	IR = defun(generator, foo/1, "X", _Body).
+	clauses_ir([foo(X) :- bar(X)], IR),
+	assertion(IR = defun(generator, foo/1, ["X"], _Body)).
 
 test(statement_conjunction, nondet) :-
-	compile_goal((a(1), b(2)), IR),
+	goal_ir((a(1), b(2)), IR),
 	assertion( IR = (StmtA *-> StmtB *-> yield) ),
 	assertion( StmtA = funcall(_, _) ),
 	assertion( StmtB = funcall(_, _) ).
 
 test(statement_disjunction, nondet) :-
-	compile_goal((a(1) ; b(2)), IR),
+	goal_ir((a(1) ; b(2)), IR),
 	assertion( IR = (StmtA , StmtB) ),
 	assertion( StmtA = funcall(_, _) ),
 	assertion( StmtB = funcall(_, _) ).
 
 test(statement_cut) :-
-	compile_goal(!, IR),
+	goal_ir(!, IR),
 	IR == break.
 
-test(term_to_call) :-
-	term_to_call(writeln(hello), IR),
+test(term_call_ir) :-
+	term_call_ir(writeln(hello), IR),
 	IR = funcall(writeln, [_]).
 
-test(compile_facts) :-
-	compile_clauses([foo(1), foo(2), foo(3)], IR),
-	IR = defun(generator, foo/1, "X", _Body).
+test(compile_facts, [nondet]) :-
+	clauses_ir([foo(1), foo(2), foo(3)], IR),
+	IR = defun(generator, foo/1, ["X"], _Body).
 
-test(compile_multiple_predicates, fail) :-
-	% This should fail as we don't yet support multiple predicates in one compile
-	compile_clauses([foo(1), bar(2)], _).
-
-test(complex_predicate) :-
+test(complex_predicate, nondet) :-
 	Clauses = [
 	    (foo(X, Y) :- bar(X), baz(Y)),
 	    (foo(X, Y) :- qux(X, Y))
 	],
-	compile_clauses(Clauses, IR),
-	IR = defun(generator, foo/2, "X", _Impl).
+	clauses_ir(Clauses, IR),
+	IR = defun(generator, foo/2, ["X"], _).
+
+test(clauses_grouped) :-
+	Clauses = [
+		(foo(X) :- bar(X)),
+		(foo(Y) :- baz(Y)),
+		(bar(Z) :- qux(Z)),
+		(bar(W) :- quux(W)),
+		(abc(A) :- def(A))
+	],
+	clauses_grouped(Clauses, Groups),
+	!,
+	assertion(length(Groups, 3)),
+	assertion(Groups = [
+		[(foo(X) :- bar(X)), (foo(Y) :- baz(Y))],
+		[(bar(Z) :- qux(Z)), (bar(W) :- quux(W))],
+		[(abc(A) :- def(A))]
+	]).
+
+test(member_clauses_grouped) :-
+	Clauses = [
+		(member(X, [X]) :- true),
+		(member(X, [_|L]) :- member(X, L))
+	],
+	clauses_grouped(Clauses, Groups),
+	!,
+	assertion(length(Groups, 1)),
+	assertion(Groups = [
+		[(member(X, [X]) :- true), (member(X, [_|L]) :- member(X, L))]
+	]).
 
 :- end_tests(comp).
