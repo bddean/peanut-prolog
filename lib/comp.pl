@@ -169,8 +169,6 @@ compile_term_ir(Backend) -->
 	walk_ir(loop_to_yield_all),
 	walk_ir(compile_node(Backend)).
 
-dbg_(A, A) :- portray_clause('$$$'(A)).
-
 compile_terms(Backend, Terms, Out) :-
   terms_ir(Terms, IRs),
 	maplist(compile_term_ir(Backend), IRs, Outs),
