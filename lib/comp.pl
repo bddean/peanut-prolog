@@ -175,7 +175,9 @@ compile_terms(Backend, Terms, Out) :-
 	atomics_to_string(Outs, Out).
 
 compile_file(Backend, FName, Out) :-
-	read_file_to_terms(FName, Terms, []),
+	% TODO do htis cleaner-ly.
+	read_file_to_terms("./lib/prelude.pl", Terms, [tail(FileTerms)]),
+	read_file_to_terms(FName, FileTerms, []),
 	compile_terms(Backend, Terms, Out).
 
 :- begin_tests(comp).

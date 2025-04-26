@@ -27,7 +27,7 @@ js(funcall(Name, Args)) -->
 	NameCodes, "(", js_args(Args), ")".
 
 js(Name := Value) --> "const ", Name, "=", Value, ";\n".
-js(new_var) --> "new Var()".
+
 js(allocate_vars(VarNameList)) -->
 	"const [", js_args(VarNameList), "] = Var.allocate();\n".
 
@@ -35,8 +35,8 @@ js(allocate_vars(VarNameList)) -->
 js(!) --> "break;".
 js(nothing) --> "".
 js([]) --> "".
-js(yield) --> "yield;".
-js(yield_all(G)) --> "yield* ", G, ";".
+js(yield) --> "yield;\n".
+js(yield_all(G)) --> "yield* ", G, ";\n".
 js((A, B)) --> A, ";", B.
 
 js((Cond -> Block)) -->
@@ -107,6 +107,11 @@ js_escape_code(0'\r) --> "\\r".   % Carriage return
 js_escape_code(0'\t) --> "\\t".   % Tab
 js_escape_code(C) --> [C].        % Regular character
 
+% TODO nearly all these tests are bad
+% b/c they weren't rewritten when I changed the
+% interface
+%
+% probably should be replaced by integration tests anyhow.
 :- begin_tests(js_backend).
 
 test(simple_funcall) :-

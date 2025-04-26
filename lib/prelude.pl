@@ -1,7 +1,7 @@
 % Basic Prolog predicates
 A = A.
 
-% List operations
+%%% List operations %%%
 member(X, [X|_]).
 member(X, [_|Tail]) :- member(X, Tail).
 

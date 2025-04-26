@@ -1,11 +1,9 @@
 NEXT
-[/] erase `true`
-
 [ ] test imrpvoements
+	[ ] unit tests -> separate files
 	[ ] set up good integration test setup
 		* artifacts for debugging: IR, logs (?), trace (?),
 		* benchmarks
-	[ ] unit tests -> separate files
 	[ ] fill gaps in unit tests
 
 [ ] claude.md
@@ -13,6 +11,7 @@ NEXT
 [ ] refactoring
 	[ ] rm ir_to_js; also have compile preds accept DCGs for concat
 	[ ] more files
+	[ ] move walk_ir to an ir.pl. And maybe make it more general / easy to extend...
 
 [ ] TODO comments
 

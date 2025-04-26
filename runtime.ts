@@ -73,73 +73,9 @@ function* unifyArgs(A: Val[], B: Val[], i = 0): Choices {
   }
 }
 
-type Builtin = (...args: Val[]) => Choices;
-const db = new Map<Atomic, Map<number, (Inst|Builtin)[]>>();
-
-export function* call(goal: Val): Choices {
-  goal = deref(goal);
-  if (goal instanceof Var) throw new Error("Can't call var.");
-  const [tag, arity] = goal instanceof Term
-    ? [goal.tag, goal.args.length]
-    : [goal, 0];
-  const entries = db.get(tag)?.get(arity);
-  if (! entries) { throw new Error("Goal not found: " + goal)}
-  // if (!entries) return;
-  for (let entry of entries) {
-    if (typeof entry === "function") {
-      yield* entry(...(goal instanceof Term ? goal.args : []));
-    } else if (entry instanceof Term) {
-      entry = entry.copy();
-      if (entry.tag === ":-" && entry.args.length === 2) {
-        const [head, body] = entry.args;
-        for (const _ of unify(goal, head)) {
-          yield* call(body);
-        }
-      } else yield* unify(goal, entry)
-    } // Else fail.
-  }
-}
-
-// nosubmit asserta?
-function* assertz(v: Val): Choices { }
-
-export const add_fact = (tag: Atom, arity: number, Fact: Inst) => {
-  if(!db.has(tag))db.set(tag, new Map());
-  const byArity=db.get(tag)!;
-  if(!byArity.has(arity))byArity.set(arity, []);
-  byArity.get(arity)!.push(Fact);
-}
-
-
-export const run_goal = (G: Inst) => call(G).next();
-const loadCtx = { add_fact, run_goal } as const;
-// nosubmit hmm maybe move towards more of 1:1 mapping to js modules
-// - atoms: just symbols these are the ONLY exports.
-// - use_moduel --> import
-// ... but we need to make sure it's serializable so use Symbol.for(mod:atom) etc
-export const loadModule = (
-  name: string,
-  loader: (_: typeof loadCtx) => void
-) => {
-  CURRENT_MODULE = "name"
-  try {
-    loader(loadCtx);
-  } finally {
-    CURRENT_MODULE = "user";
-  }
-}
-
-
-db.set("writeln", new Map([[1, [function*(arg: Val) {
-  console.log(arg);
+export const writeln = function*(X: Val) {
+  console.log(X);
   yield;
-}]]]));
+}
 
-db.set(",", new Map([[2, [function*(g1: Val, g2: Val) {
-  for (const _ of call(g1)) yield* call(g2);
-}]]]));
-
-db.set("fail", new Map([[0, [function*() {}]]]));
-
-// TODO call/n... though that can also just be def'd in prolog...
-db.set("call", new Map([1].map(n => [n, [call]])));
+export const fail = function*() {}
