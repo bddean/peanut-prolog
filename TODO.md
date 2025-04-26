@@ -8,10 +8,12 @@ NEXT
 	[ ] unit tests -> separate files
 	[ ] fill gaps in unit tests
 
+[ ] claude.md
+
 [ ] refactoring
 	[ ] rm ir_to_js; also have compile preds accept DCGs for concat
 	[ ] more files
-	
+
 [ ] TODO comments
 
 [ ] support declarations
