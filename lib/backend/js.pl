@@ -1,4 +1,5 @@
 :- module(js, [js/3, js/2, ir_to_js/2]).
+:- use_module(js_identifier, [js_ident/2]).
 
 % Public interface
 js(T, S) :- js(T, S, []).
@@ -54,7 +55,7 @@ js(\'$VAR'(N)) -->
 	{ format(string(Name), "_~d", [N]) },
 	!,
 	js($Name).
-js(\[]) --> "[|]", !.  % SWI specific thing
+js(\[]) --> "\"[|]\"", !.  % SWI specific thing
 js(\N) --> { number(N), number_codes(N, Codes) }, Codes.
 js(\Term) -->	 { string(Term) }, "\"", js_escape(Term), "\"".
 js(\Term) -->
@@ -70,9 +71,10 @@ js(\Term) -->
 
 % Variables and literals
 % $ operator is for JS identifiers (variable names)
-% TODO this impl is wrong... Or at least my predicate names are.
-%  js_atom should just be for atom literatos.
-js($X) --> js_atom(X).
+js($X) --> 
+    { js_ident(X, JSIdent) },
+    { string_codes(JSIdent, Codes) },
+    Codes.
 
 % Helper predicates
 js_args([]) --> "".

@@ -1,4 +1,7 @@
 NEXT
+fix ident <--> string conversion
+
+
 [ ] test imrpvoements
 	[ ] unit tests -> separate files
 	[ ] set up good integration test setup
