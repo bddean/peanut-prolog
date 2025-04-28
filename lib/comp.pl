@@ -29,10 +29,10 @@ walk_kids_(G, yield_all(X0), yield_all(X)) :- walk_ir(G, X0, X).
 
 walk_kids_(
 	G,
-	defun(Type, Name, Args0, Body0),
-	defun(Type, Name, Args, Body)
+	defun(Type, Name, Body0),
+	defun(Type, Name, Body)
 ) :-
-	maplist(walk_ir(G), [Body0|Args0], [Body|Args]).
+	walk_ir(G, Body0, Body).
 
 walk_kids_(
 	G,
@@ -85,7 +85,7 @@ declaration_ir(_) :- throw("Declarations not supported yet").
 % 1. Convert the clauses to a single disjunction, including unification to each head...
 % 2. Then actually compile to the IR!
 clauses_ir([], nothing).
-clauses_ir(Clauses, defun(generator, Spec, ["X"], (
+clauses_ir(Clauses, defun(generator, Spec, (
 	allocate_vars(VarNames),
 	Impls
 ))) :-
@@ -113,7 +113,7 @@ normalize_and_compile_clauses([Clause|Rest], (ClauseIR, RestIR)) :-
 	normalize_and_compile_clauses(Rest, RestIR).
 
 compile_clause((Head :- Body), (
-	funcall("unify", [$"X", \Head]) *-> BodyIR
+	funcall("unify", [$"CALLED_TERM", \Head]) *-> BodyIR
 )) :-	goal_ir(Body, BodyIR).
 
 var_name_(N, $Name) :- format(string(Name), "_~d", [N]).
@@ -187,7 +187,7 @@ test(compile_empty, nondet) :-
 
 test(compile_simple_clause, nondet) :-
 	clauses_ir([foo(X) :- bar(X)], IR),
-	assertion(IR = defun(generator, foo/1, ["X"], _Body)).
+	assertion(IR = defun(generator, foo/1, _Body)).
 
 test(statement_conjunction, nondet) :-
 	goal_ir((a(1), b(2)), IR),
@@ -211,7 +211,7 @@ test(term_call_ir) :-
 
 test(compile_facts, [nondet]) :-
 	clauses_ir([foo(1), foo(2), foo(3)], IR),
-	IR = defun(generator, foo/1, ["X"], _Body).
+	IR = defun(generator, foo/1, _Body).
 
 test(complex_predicate, nondet) :-
 	Clauses = [
@@ -219,7 +219,7 @@ test(complex_predicate, nondet) :-
 	    (foo(X, Y) :- qux(X, Y))
 	],
 	clauses_ir(Clauses, IR),
-	IR = defun(generator, foo/2, ["X"], _).
+	IR = defun(generator, foo/2, _).
 
 test(clauses_grouped) :-
 	Clauses = [

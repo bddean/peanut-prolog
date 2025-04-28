@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+fout="$(mktemp)"
+>&2 swipl -l compile.pl -- "$1" $fout
+
+cat runtime.js $fout
+echo
+echo "main_0().next();"

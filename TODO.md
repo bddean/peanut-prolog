@@ -1,45 +1,62 @@
-NEXT
-fix ident <--> string conversion
+# Testing infrastructure
 
+We should work towards a single "quiet mode" command that runs all these
+tests and only prints output for failures.
 
-[ ] test imrpvoements
-	[ ] unit tests -> separate files
-	[ ] set up good integration test setup
-		* artifacts for debugging: IR, logs (?), trace (?),
-		* benchmarks
-	[ ] fill gaps in unit tests
+## TODO move plunit tests to separate files
+## TODO update unit tests
+Fill gaps in suite, and fix failures
 
-[ ] claude.md
+Some of the tests may just be outdated / for an older interface.
+## TODO integration tests
+a file can be compiled and run like this:
+`./devbin/bundle test/in/hello.pl > test.js && node test.js`
 
-[ ] refactoring
-	[ ] rm ir_to_js; also have compile preds accept DCGs for concat
-	[ ] more files
-	[ ] move walk_ir to an ir.pl. And maybe make it more general / easy to extend...
+This means we can set up an integration test runner that runs each
+prolog program in test/in, and compares the stdout and stderr to the
+same program run in swipl.
 
-[ ] TODO comments
+In addition, we should put the generated IR and compiled JS fragment
+(not bundle) in something like a var/ directory for debugging.
 
-[ ] support declarations
-[ ] modules
-[ ] fix atom and term representation...
+# Refactoring
+## TODO Review code for general elegance / readability
+## TODO Split lib/comp.pl into more subfiles.
+Probably there should be some single source of truth defining the
+IR type??
+## TODO Remove the ir_to_js export from the js backend
+instead rely on js/3 and amend comp.pl to use codes (dif lists)
 
-- comp.pl:
-	- add passes that:
-		1. convert *-> (for-each) to -> (if-then) if predicate property indicates det
+# Reliability / bugs
+## Identifier symbols
+fix internal js varnames (_1, args etc) so they can't collide with
+predicate names
 
-	- see other TODO comments
+# Features
+## TODO cut
+The solution here is probably to amend the IR to pass down the "context".
 
-- improve testing situation.
-- update js backend to use new format
-- improve variable code: allocate as vars at top of prediate. use\
-  term_variables ->> numbervars for this
-- special case impl for singleton ('_') vars? See numbervars options
-- special case for lists.
-- modules
+Like, for loops: Add a label to the loop and generate !(loop(Label)) --> break Label;
+... and for defun() -- !(function) --> return;
 
-- modifications to prolog types
-	- dicts or even better, sets
-	- we need a "compiled function" type...
-		- and this needs to be serializable
+## TODO declarations
+Not settled on the semantics for this but these would probably run at
+a separate compile phase.
 
-- what about dynamic db? compiler is more fundamental... we can build
-  inteprreted or jit mode on top
+Make sure this is compatible with eventual self-hosting
+
+## TODO Async predicates
+Which would compile to async generators
+
+## Other data structures
+### TODO "compiled JS function" type
+### TODO JS arrays
+This could be a different prolog type... or just a special unification
+type?
+### TODO sets
+I want a "set" type
+## TODO Atoms as symbols(?)
+## TODO modules
+## TODO extensible unification
+Codex, I have ideas about this not written here
+

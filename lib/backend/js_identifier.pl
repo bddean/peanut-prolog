@@ -1,12 +1,12 @@
 :- module(js_identifier,
-          [ js_escape/2                 % ?PlainAtom ?JsIdentifier
+          [ js_escape_ident/2                 % ?PlainAtom ?JsIdentifier
           ]).
 
 /*======================================================================
   Public relation
   ======================================================================*/
 
-js_escape(PlainAtom, EscapedAtom) :-
+js_escape_ident(PlainAtom, EscapedAtom) :-
         when( (ground(PlainAtom) ; ground(EscapedAtom)),
               transduce(PlainAtom, EscapedAtom) ).
 
@@ -116,11 +116,9 @@ test(all_examples) :-
 round_trip(PlainSpec, EscSpec) :-
         atom_string(Plain, PlainSpec),   % allow atoms or strings
         atom_string(Esc  , EscSpec),
-				writeln(before_escape(PlainSpec)),
-        js_escape(Plain, Result),           % encode
+        js_escape_ident(Plain, Result),           % encode
 				assertion(Result == Esc),
-				writeln(after_escape(PlainSpec, Esc)),
-        js_escape(Back, Esc),           % decode
+        js_escape_ident(Back, Esc),           % decode
         assertion(Back == Plain).
 
 :- end_tests(js_identifier).

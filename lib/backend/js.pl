@@ -1,5 +1,5 @@
 :- module(js, [js/3, js/2, ir_to_js/2]).
-:- use_module(js_identifier, [js_ident/2]).
+:- use_module(js_identifier, [js_escape_ident/2]).
 
 % Public interface
 js(T, S) :- js(T, S, []).
@@ -16,9 +16,9 @@ ir_to_js(IR, JSCode) :-
 
 % Tracing clause for debugging
 % Generator function
-js(defun(generator, Name/Arity, Args, Body)) -->
-	"function* ", js_atom(Name), "_", js(\Arity), "(",
-	js_args(Args), ") {\n",
+js(defun(generator, Name/Arity, Body)) -->
+	"function* ", js_atom(Name), "_", js(\Arity), "(...args) { \n",
+	"const CALLED_TERM = ", called_term_expr_(Name/Arity), ";\n",
 	Body,
 	"\n}".
 
@@ -38,7 +38,7 @@ js(nothing) --> "".
 js([]) --> "".
 js(yield) --> "yield;\n".
 js(yield_all(G)) --> "yield* ", G, ";\n".
-js((A, B)) --> A, ";", B.
+js((A, B)) --> A, ";\n", B.
 
 js((Cond -> Block)) -->
 	"if (", Cond, ") {\n",
@@ -71,10 +71,10 @@ js(\Term) -->
 
 % Variables and literals
 % $ operator is for JS identifiers (variable names)
-js($X) --> 
-    { js_ident(X, JSIdent) },
-    { string_codes(JSIdent, Codes) },
-    Codes.
+js($X) -->
+	{ js_escape_ident(X, JSIdent) },
+	{ string_codes(JSIdent, Codes) },
+	Codes.
 
 % Helper predicates
 js_args([]) --> "".
@@ -109,6 +109,11 @@ js_escape_code(0'\r) --> "\\r".   % Carriage return
 js_escape_code(0'\t) --> "\\t".   % Tab
 js_escape_code(C) --> [C].        % Regular character
 
+called_term_expr_(Name/0) --> js(\Name).
+called_term_expr_(Name/Arity) --> { Arity > 0 },
+	"new Term(", js(\Name), ", args)".
+
+
 % TODO nearly all these tests are bad
 % b/c they weren't rewritten when I changed the
 % interface
@@ -139,7 +144,7 @@ test(term_literal) :-
 	sub_string(Result, _, _, _, "new Term"), !.
 
 test(simple_generator) :-
-	phrase(js(defun(generator, foo/0, "X", funcall("test", []))), Codes),
+	phrase(js(defun(generator, foo/0, funcall("test", []))), Codes),
 	!,
 	string_codes(Result, Codes),
 	sub_string(Result, 0, _, _, "function* $"),
