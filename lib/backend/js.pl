@@ -10,6 +10,8 @@ ir_to_js(IR, JSCode) :-
 	js(IR, Codes),
 	string_codes(JSCode, Codes).
 
+fun_name(Name/Arity) --> js_atom(Name), "_", js(\Arity).
+
 %%
 %% JavaScript code generation
 %%
@@ -17,15 +19,15 @@ ir_to_js(IR, JSCode) :-
 % Tracing clause for debugging
 % Generator function
 js(defun(generator, Name/Arity, Body)) -->
-	"function* ", js_atom(Name), "_", js(\Arity), "(...args) { \n",
+	"function* ", fun_name(Name/Arity), "(...args) { \n",
 	"const CALLED_TERM = ", called_term_expr_(Name/Arity), ";\n",
 	Body,
 	"\n}".
 
 % Function call
 js(funcall(Name, Args)) -->
-	{ atom_codes(Name, NameCodes) },
-	NameCodes, "(", js_args(Args), ")".
+	{ length(Args, N) },
+	fun_name(Name/N), "(", js_args(Args), ")".
 
 js(Name := Value) --> "const ", Name, "=", Value, ";\n".
 
@@ -33,7 +35,7 @@ js(allocate_vars(VarNameList)) -->
 	"const [", js_args(VarNameList), "] = Var.allocate();\n".
 
 % Control structures
-js(!) --> "break;".
+js(break) --> "break;".
 js(nothing) --> "".
 js([]) --> "".
 js(yield) --> "yield;\n".

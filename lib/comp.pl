@@ -139,7 +139,7 @@ goal_ir(Cont, (A0 ; B0), (A , B)) :- % TODO names etc
 	!,
 	maplist(goal_ir(Cont), [A0, B0], [A, B]).
 
-goal_ir(_, !, break) :- !.
+goal_ir(_, !, (yield, break)) :- !.
 
 % TODO convert to -> in second pass
 goal_ir(Cont, Term, (Call *-> Cont)) :-

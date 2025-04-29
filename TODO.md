@@ -8,16 +8,9 @@ tests and only prints output for failures.
 Fill gaps in suite, and fix failures
 
 Some of the tests may just be outdated / for an older interface.
-## TODO integration tests
-a file can be compiled and run like this:
-`./devbin/bundle test/in/hello.pl > test.js && node test.js`
-
-This means we can set up an integration test runner that runs each
-prolog program in test/in, and compares the stdout and stderr to the
-same program run in swipl.
-
-In addition, we should put the generated IR and compiled JS fragment
-(not bundle) in something like a var/ directory for debugging.
+## TODO debugging integration tests
+Put the generated IR and compiled JS fragment (not bundle) in the var/ directory
+for debugging. Will need to add an export for terms_ir_debug to lib/comp.pl.
 
 # Refactoring
 ## TODO Review code for general elegance / readability

@@ -6,4 +6,10 @@ fout="$(mktemp)"
 
 cat runtime.js $fout
 echo
-echo "main_0().next();"
+# Hack: Suppress nonzero exit codes to make test harness simpler.
+echo "
+try {
+	main_0().next();
+} catch(e) {
+	console.error(e);
+}"

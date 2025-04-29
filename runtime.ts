@@ -51,7 +51,7 @@ function deref(v: Val): Inst | UnboundVar {
   return deref(v.ref);
 }
 
-function* unify(A: Val, B: Val): Choices {
+function* unify_2(A: Val, B: Val): Choices {
   A = deref(A); B = deref(B);
   if (A === B) return yield;
   if (A instanceof Var) return yield* A.set(B);
@@ -68,14 +68,14 @@ function* unify(A: Val, B: Val): Choices {
 
 function* unifyArgs(A: Val[], B: Val[], i = 0): Choices {
   if (i >= A.length) return yield;
-  for (const _ of unify(A[i], B[i])) {
+  for (const _ of unify_2(A[i], B[i])) {
     yield* unifyArgs(A, B, i + 1);
   }
 }
 
-export const writeln = function*(X: Val) {
-  console.log(X);
+export const writeln_1 = function*(X: Val) {
+  console.log(deref(X));
   yield;
 }
 
-export const fail = function*() {}
+export const fail_0 = function*() {}

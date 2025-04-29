@@ -5,8 +5,8 @@
 main :-
     current_prolog_flag(argv, Args),
     (append(_, [InputFile, OutputFile], Args) ->
-        format('Compiling ~w to ~w...~n', [InputFile, OutputFile]),
-        process_file(InputFile, OutputFile)
+        ( process_file(InputFile, OutputFile) -> true
+				; writeln("Failed to compile."), halt(1) )
     ;
         usage_error
     ).
