@@ -139,7 +139,7 @@ goal_ir(Cont, (A0 ; B0), (A , B)) :- % TODO names etc
 	!,
 	maplist(goal_ir(Cont), [A0, B0], [A, B]).
 
-goal_ir(_, !, (yield, break)) :- !.
+goal_ir(_, !, (yield, return)) :- !.
 
 % TODO convert to -> in second pass
 goal_ir(Cont, Term, (Call *-> Cont)) :-
@@ -200,10 +200,6 @@ test(statement_disjunction, nondet) :-
 	assertion( IR = (StmtA , StmtB) ),
 	assertion( StmtA = funcall(_, _) ),
 	assertion( StmtB = funcall(_, _) ).
-
-test(statement_cut) :-
-	goal_ir(!, IR),
-	IR == break.
 
 test(term_call_ir) :-
 	term_call_ir(writeln(hello), IR),

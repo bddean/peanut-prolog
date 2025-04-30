@@ -1,0 +1,6 @@
+#!/usr/bin/env __run
+echo 'UNIT TESTS:'
+@test-unit
+echo
+echo 'INTEGRATION TESTS:'
+@test-intg

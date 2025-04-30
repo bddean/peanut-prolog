@@ -45,7 +45,7 @@ run_compiled(TestPath, Output, Error) :-
 	% Create temporary file for JS output
 	tmp_file(js, TmpJS),
 	% Compile the Prolog file to JavaScript
-	atomic_list_concat(['./devbin/bundle ', TestPath, ' > ', TmpJS], CompileCmd),
+	atomic_list_concat(['@bundle ', TestPath, ' > ', TmpJS], CompileCmd),
 	shell(CompileCmd, _),
 	% Run the compiled JavaScript with Node.js
 	%

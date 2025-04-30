@@ -10,9 +10,12 @@ export class Var {
   id = _vid++;
   *set(v: Val) {
     if (this.ref !== UnboundSym) return; // TODO skip this check for unify??
-    this.ref = v;
-    yield;
-    this.ref = UnboundSym;
+    try {
+    	this.ref = v;
+    	yield;
+    } finally {
+    	this.ref = UnboundSym;
+    }
   }
 }
 

@@ -35,6 +35,7 @@ js(allocate_vars(VarNameList)) -->
 	"const [", js_args(VarNameList), "] = Var.allocate();\n".
 
 % Control structures
+js(return) --> "return;".
 js(break) --> "break;".
 js(nothing) --> "".
 js([]) --> "".
@@ -123,34 +124,20 @@ called_term_expr_(Name/Arity) --> { Arity > 0 },
 % probably should be replaced by integration tests anyhow.
 :- begin_tests(js_backend).
 
-test(simple_funcall) :-
+test(simple_funcall, [nondet]) :-
 	phrase(js(funcall(test, [])), Codes),
 	string_codes(Result, Codes),
-	Result = "test()".
+	assertion("test_0()" == Result).
 
-%% nosumbit replace / rename...
-test(funcall_with_primitive_args) :-
-	phrase(js(funcall("test", [\"X", \123])), Codes), !,
+test(funcall_with_args) :-
+	phrase(js(funcall(test, ["\"X\"", "123"])), Codes), !,
 	string_codes(Result, Codes),
-		writeln(funcall_with_string_arg:result:Result),
-	Result = "test(\"X\", 123)".
-
-test(funcall_with_multiple_string_args) :-
-	phrase(js(funcall("test", [$"X", $"Y"])), Codes), !,
-	string_codes(Result, Codes),
-	Result = "test(X, Y)".
+	assertion("test_2(\"X\", 123)" == Result).
 
 test(term_literal) :-
 	phrase(js(\foo(a)), Codes), !,
 	string_codes(Result, Codes),
 	sub_string(Result, _, _, _, "new Term"), !.
-
-test(simple_generator) :-
-	phrase(js(defun(generator, foo/0, funcall("test", []))), Codes),
-	!,
-	string_codes(Result, Codes),
-	sub_string(Result, 0, _, _, "function* $"),
-		!.
 
 % Direct tests for DCG helper rules
 test(js_atom_direct) :-
@@ -169,26 +156,18 @@ test(js_atom_dollar) :-
 	Result = "test",
 	!.
 
-test(simple_unify_with_var) :-
-	format('Testing simple unify with var~n', []),
-	V = '$VAR'(0),
-	phrase(js(funcall("unify", [\"X", \V])), Codes), !,
-	string_codes(Result, Codes),
-	Result = "unify(\"X\", new Var() /* 0 */)".
-
 test(var_term) :-
 	phrase(js(\('$VAR'(0))), Codes),
 	!,
 	string_codes(Result, Codes),
-	sub_string(Result, _, _, _, "new Var()"), !.
+	assertion(Result == "_0").
 
 test(var_term_in_compound) :-
 	Term = foo('$VAR'(0), '$VAR'(1)),
 	phrase(js(\Term), Codes),
-	!,
 	string_codes(Result, Codes),
-	format('Term with vars result: ~w~n', [Result]),
-	sub_string(Result, _, _, _, "new Term"), !.
+	sub_string(Result, _, _, _, "new Term"),
+	!.
 
 test(compound_term) :-
 	Term = point(10, 20),

@@ -12,6 +12,9 @@ Some of the tests may just be outdated / for an older interface.
 Put the generated IR and compiled JS fragment (not bundle) in the var/ directory
 for debugging. Will need to add an export for terms_ir_debug to lib/comp.pl.
 
+Also need to catch
+
+
 # Refactoring
 ## TODO Review code for general elegance / readability
 ## TODO Split lib/comp.pl into more subfiles.

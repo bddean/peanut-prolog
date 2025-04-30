@@ -12,7 +12,8 @@ through the list. Feel free to add tasks.
 
 Commit very often. Commit messages MUST with 'CODEX:'.
 
-You MUST prioritize elegance and completeness.
+You MUST prioritize elegance and completeness. Existing code may not be
+exemplary :-)
 
 Very incremental TDD. Use simple inline plunit tests to verify
 implementation details as you go, own-file unit tests for more complex

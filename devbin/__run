@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Harness for running development scripts
+
+set -euo pipefail
+cd "$PLTS_HOME"
+
+export SHELLOPTS
+
+bash -- "$@"

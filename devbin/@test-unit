@@ -1,0 +1,11 @@
+#!/usr/bin/env __run
+test_cmd=run_tests
+if [[ -v 1 ]]; then
+	test_cmd="run_tests($1)"
+fi
+swipl                             \
+	-l lib/comp.pl                  \
+	-l lib/backend/js.pl            \
+	-l lib/backend/js_identifier.pl \
+	-g "$test_cmd"                  \
+	-g halt
