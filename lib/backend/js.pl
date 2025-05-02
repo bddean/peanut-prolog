@@ -14,7 +14,7 @@ fun_name(Name/Arity) --> js_atom(Name), "_", js(\Arity).
 % Generator function
 js(defun(generator, Name/Arity, Body)) -->
 	"function* ", fun_name(Name/Arity), "(...args) { \n",
-	"const CALLED_TERM = ", called_term_expr_(Name/Arity), ";\n",
+	"const ", js($.("CALLED_TERM")), " = ", called_term_expr_(Name/Arity), ";\n",
 	Body,
 	"\n}".
 
@@ -51,9 +51,9 @@ js((Gen *-> Block)) -->
 
 % Term literals
 js(\'$VAR'(N)) -->
-	{ format(string(Name), "_~d", [N]) },
+	{ format(string(Name), "~d", [N]) },
 	!,
-	js($Name).
+	js($.(Name)).
 js(\[]) --> "\"[|]\"", !.  % SWI specific thing
 js(\N) --> { number(N), number_codes(N, Codes) }, Codes.
 js(\Term) -->	 { string(Term) }, "\"", js_escape(Term), "\"".
@@ -74,6 +74,11 @@ js($X) -->
 	{ js_escape_ident(X, JSIdent) },
 	{ string_codes(JSIdent, Codes) },
 	Codes.
+% Compiler-generated identifiers -- separate namespace from
+% user-visible idents like for predicate names.
+js($.(X)) -->
+	{ format(string(Prefixed), "_~s", [X]) },
+	"$", js($Prefixed).
 
 % Helper predicates
 js_args([]) --> "".
@@ -156,7 +161,7 @@ test(var_term) :-
 	phrase(js(\('$VAR'(0))), Codes),
 	!,
 	string_codes(Result, Codes),
-	assertion(Result == "_0").
+	assertion(Result == "$_0").
 
 test(var_term_in_compound) :-
 	Term = foo('$VAR'(0), '$VAR'(1)),

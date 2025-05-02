@@ -9,6 +9,7 @@
 ]).
 :- use_module(library(debug), [assertion/1]).
 :- use_module(library(readutil), [read_file_to_terms/3]).
+:- use_module(library(gensym), [gensym/2, reset_gensym/0]).
 :- use_module('./optimizations').
 
 :- meta_predicate walk_ir(2, ?, ?).
@@ -113,11 +114,10 @@ normalize_and_compile_clauses([Clause|Rest], (ClauseIR, RestIR)) :-
 	normalize_and_compile_clauses(Rest, RestIR).
 
 compile_clause((Head :- Body), (
-	funcall("unify", [$"CALLED_TERM", \Head]) *-> BodyIR
+	funcall("unify", [$.("CALLED_TERM"), \Head]) *-> BodyIR
 )) :-	goal_ir(Body, BodyIR).
 
-var_name_(N, $Name) :- format(string(Name), "_~d", [N]).
-var_init_(N, ($Name := new_var)) :- format(string(Name), "_~d", [N]).
+var_name_(N, $.(Name)) :- format(string(Name), "~d", [N]).
 arglist([], nothing).
 arglist([X], X).
 arglist([X|Xs], (X, As)) :- arglist(Xs, As).
@@ -185,6 +185,8 @@ compile_file(Backend, FName, Out) :-
 	read_file_to_terms("./lib/prelude.pl", Terms, [tail(FileTerms)]),
 	read_file_to_terms(FName, FileTerms, []),
 	compile_terms(Backend, Terms, Out).
+
+ensure_sym(X) :- nonvar(X), ! ; gensym(X).
 
 :- begin_tests(comp).
 test(compile_empty, nondet) :-
