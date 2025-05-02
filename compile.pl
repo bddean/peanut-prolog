@@ -14,7 +14,7 @@ main :-
 % Process a Prolog file and compile it to JavaScript
 process_file(InputFile, OutputFile) :-
     % Use comp:compile_file to read file and compile terms
-    comp:compile_file(js:ir_to_js, InputFile, JSCode),
+    comp:compile_file(js:js, InputFile, JSCode),
 
     % Write to output file
     write_file(OutputFile, JSCode).

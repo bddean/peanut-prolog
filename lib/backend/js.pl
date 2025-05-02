@@ -1,14 +1,8 @@
-:- module(js, [js/3, js/2, ir_to_js/2]).
+:- module(js, [js/3, js/2]).
 :- use_module(js_identifier, [js_escape_ident/2]).
 
 % Public interface
 js(T, S) :- js(T, S, []).
-
-% Compile IR to JavaScript
-% TODO not like this...
-ir_to_js(IR, JSCode) :-
-	js(IR, Codes),
-	string_codes(JSCode, Codes).
 
 fun_name(Name/Arity) --> js_atom(Name), "_", js(\Arity).
 
@@ -34,10 +28,12 @@ js(Name := Value) --> "const ", Name, "=", Value, ";\n".
 js(allocate_vars(VarNameList)) -->
 	"const [", js_args(VarNameList), "] = Var.allocate();\n".
 
-% Control structures
-js(return) --> "return;".
-js(break) --> "break;".
 js(nothing) --> "".
+
+% Control structures
+js(Label:Block) --> Label, ":", "{\n", Block, "\n}".
+js(break(Label)) --> "break ", Label, ";\n".
+js(return) --> "return;\n".
 js([]) --> "".
 js(yield) --> "yield;\n".
 js(yield_all(G)) --> "yield* ", G, ";\n".
