@@ -1,36 +1,5 @@
 # Features
-## TODO cut
-i have an attempt in unstagd changes but i think i confused myself again.
-
-see basis for a much simpler approach in ./simple-label-demo.js
-
-1. gensym equivalent
-2. Add Label:{_} Term
-3. Pass containing label (instead of `Cont`) as context to goal_ir; this is not optional
-	(cont is always yield)
-4. then cut is (Label, (!, G), (G, break(Label))).
-5. Profit!
-
-We'll only generate the label jit and then unwrap on second compile pass.
-
-----
-
-wait a second break always does the inner thing. just wrap everything
-in switch and it will work fine.
-
-	NO -- we want OUTER break! I think! work out a solution...
-
-~The solution here is probably to amend the IR to pass down the "context".~
-
-Like, for loops: Add a label to the loop and generate !(loop(Label)) --> break Label;
-... and for defun() -- !(function) --> return;
-
-then for the runtime def we can't just do something like `_ ; G :-
-call(G). G ; _ :- call(G).` because cuts within the first disjoined goal
-needs to be "transparent", ie cut into ; itself. So instead do like:
-`!, Gs ; R :- !, call(Gs).` Followed by the prev def... but not sure if
-that actually works.
-
+## call/0
 ## TODO declarations
 Not settled on the semantics for this but these would probably run at
 a separate compile phase.

@@ -19,6 +19,7 @@ js(defun(generator, Name/Arity, Body)) -->
 	"\n}".
 
 % Function call
+%js(A, B, C) :- writeln(js(A, B, C)), fail.
 js(funcall(Name, Args)) -->
 	{ length(Args, N) },
 	fun_name(Name/N), "(", js_args(Args), ")".

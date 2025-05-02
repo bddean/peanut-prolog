@@ -7,9 +7,6 @@ g("haf gon to bed -").
 g("i stay up late.").
 g("i lik the bred.").
 
-%% TODO This only passes by coincidence. Cuts are still totally broken.
-% (We're inserting `break` in a way that causes unify() to fail to
-% clean up, which just fails subsequent clauses...)
 main :-
 	g(X),
 	writeln(X),

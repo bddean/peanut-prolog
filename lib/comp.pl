@@ -49,6 +49,9 @@ walk_kids_(
 ) :-
 	maplist(walk_ir(G), Names0, Names).
 
+walk_kids_(G, L0:B0, L:B) :-	maplist(walk_ir(G), [L0, B0], [L, B]).
+walk_kids_(G, break(L0), break(L)) :- call(G, L0, L).
+
 % clauses_grouped groups a list of clauses (H :- B terms) into sublists
 % grouped by head name/arity.
 clauses_grouped([], []).
@@ -128,21 +131,26 @@ normalize_clause(Fact, (Fact :- true)) :- !.
 
 % Convert Prolog statements to IR
 % goal_ir(+Statement, -IR)
-goal_ir(G, IR) :- goal_ir(yield, G, IR).
+goal_ir(G, IR) :- goal_ir(function, yield, G, IR).
 
-goal_ir(Cont, (A0, B0), A) :-
+goal_ir(Scope, Cont, (A0, B0), A) :-
 	!,
-	goal_ir(Cont, B0, B),
-	goal_ir(B, A0, A).
+	goal_ir(Scope, Cont, B0, B),
+	goal_ir(Scope, B, A0, A).
 
-goal_ir(Cont, (A0 ; B0), (A , B)) :- % TODO names etc
+goal_ir(Scope, Cont, (A0 ; B0), (A , B)) :-
 	!,
-	maplist(goal_ir(Cont), [A0, B0], [A, B]).
+	maplist(
+		goal_ir(Scope, Cont),
+		[A0, B0],
+		[A, B]
+	).
 
-goal_ir(_, !, (yield, return)) :- !.
+goal_ir(function, Cont, !, (Cont, return)) :- !.
+goal_ir(block(Lbl), Cont, !, (Cont, break($Lbl))) :- !.
 
 % TODO convert to -> in second pass
-goal_ir(Cont, Term, (Call *-> Cont)) :-
+goal_ir(_, Cont, Term, (Call *-> Cont)) :-
 	term_call_ir(Term, Call).
 
 % Convert a Prolog term to a function call
@@ -186,7 +194,7 @@ compile_file(Backend, FName, Out) :-
 	read_file_to_terms(FName, FileTerms, []),
 	compile_terms(Backend, Terms, Out).
 
-ensure_sym(X) :- nonvar(X), ! ; gensym(X).
+ensure_sym(S) :- nonvar(S), ! ; gensym("gen", A), atom_string(A, S).
 
 :- begin_tests(comp).
 test(compile_empty, nondet) :-
