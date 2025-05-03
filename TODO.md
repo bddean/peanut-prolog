@@ -1,8 +1,13 @@
 # Features
-## call/0
-## TODO declarations
-Not settled on the semantics for this but these would probably run at
-a separate compile phase.
+## Other control structures
+https://www.swi-prolog.org/pldoc/man?predicate=!/0
+## call/n
+* ehhh just implement as intrinsic for now?? then we can use eval
+* or at least, like, call_single_term...
+
+## TODO directives
+Not settled on the semantics for this but these would probably just run
+at compile time. similar to Ciao Prolog.
 
 Make sure this is compatible with eventual self-hosting
 
@@ -15,29 +20,27 @@ Which would compile to async generators
 This could be a different prolog type... or just a special unification
 type?
 ### TODO sets
-I want a "set" type
+I want a "set" type like SWI's dicts but more general
+
+https://platform.openai.com/playground/prompts?preset=aNjqRnCeYPbMtoL6sR3HMQe5
 ## TODO Atoms as symbols(?)
 ## TODO modules
 ## TODO extensible unification
-Codex, I have ideas about this not written here
+## TODO types
+Like Ciao's assertion language
+Impl: Theorem prover? CHR type deal?
 
 # Testing infrastructure
 
-We should work towards a single "quiet mode" command that runs all these
-tests and only prints output for failures.
+## TODO quiet mode for unit tests (only log failures)
 
-## TODO debugging integration tests
+## TODO debug artifacts for integration tests
 Put the generated IR and compiled JS fragment (not bundle) in the var/ directory
 for debugging. Will need to add an export for terms_ir_debug to lib/comp.pl.
+
 
 # Refactoring
 ## TODO Review code for general elegance / readability
 ## TODO Split lib/comp.pl into more subfiles.
 Probably there should be some single source of truth defining the
 IR type??
-
-# Reliability / bugs
-## Identifier symbols
-fix internal js varnames (_1, args etc) so they can't collide with
-predicate names
-

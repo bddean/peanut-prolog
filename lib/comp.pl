@@ -12,45 +12,8 @@
 :- use_module(library(gensym), [gensym/2, reset_gensym/0]).
 :- use_module('./optimizations').
 
-:- meta_predicate walk_ir(2, ?, ?).
-walk_ir(G) --> walk_kids(G), tform_node(G).
-tform_node(G, E0, E) :- call(G, E0, E) *-> true ; E = E0.
-
-walk_kids(G, E0, E) :- walk_kids_(G, E0, E) *-> true ; E = E0.
-walk_kids_(G, E0, E) :-
-	member(E0-E, [
-		(M0, N0)    - (M, N),
-		(M0 -> N0)  - (M -> N),
-		(M0 *-> N0) - (M *-> N),
-		(M0 := N0) - (M := N)
-	]),
-	maplist(walk_ir(G), [M0, N0], [M, N]).
-
-walk_kids_(G, yield_all(X0), yield_all(X)) :- walk_ir(G, X0, X).
-
-walk_kids_(
-	G,
-	defun(Type, Name, Body0),
-	defun(Type, Name, Body)
-) :-
-	walk_ir(G, Body0, Body).
-
-walk_kids_(
-	G,
-	funcall(Name, Args0),
-	funcall(Name, Args)
-) :-
-	maplist(walk_ir(G), Args0, Args).
-
-walk_kids_(
-	G,
-	allocate_vars(Names0),
-	allocate_vars(Names)
-) :-
-	maplist(walk_ir(G), Names0, Names).
-
-walk_kids_(G, L0:B0, L:B) :-	maplist(walk_ir(G), [L0, B0], [L, B]).
-walk_kids_(G, break(L0), break(L)) :- call(G, L0, L).
+% Generic IR walker lives in its own helper module.
+:- use_module('./ir_utils', [walk_ir/3]).
 
 % clauses_grouped groups a list of clauses (H :- B terms) into sublists
 % grouped by head name/arity.

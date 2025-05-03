@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-# Run the integration tests
-swipl -l test/integration_test.pl -g "run_tests" -g "halt(0)"
