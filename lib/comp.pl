@@ -1,7 +1,5 @@
 :- module(comp, [
-		% TODO -- this should be the main entry point!
 		compile_terms/3,
-
     clauses_ir/2,
     goal_ir/2,
     term_call_ir/2,
@@ -9,10 +7,8 @@
 ]).
 :- use_module(library(debug), [assertion/1]).
 :- use_module(library(readutil), [read_file_to_terms/3]).
-:- use_module(library(gensym), [gensym/2, reset_gensym/0]).
+:- use_module(library(gensym), [gensym/2]).
 :- use_module('./optimizations').
-
-% Generic IR walker lives in its own helper module.
 :- use_module('./ir_utils', [walk_ir/3]).
 
 % clauses_grouped groups a list of clauses (H :- B terms) into sublists
