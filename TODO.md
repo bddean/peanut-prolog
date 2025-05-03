@@ -41,6 +41,3 @@ for debugging. Will need to add an export for terms_ir_debug to lib/comp.pl.
 
 # Refactoring
 ## TODO Review code for general elegance / readability
-## TODO Split lib/comp.pl into more subfiles.
-Probably there should be some single source of truth defining the
-IR type??
