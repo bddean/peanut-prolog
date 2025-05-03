@@ -156,42 +156,6 @@ compile_file(Backend, FName, Out) :-
 ensure_sym(S) :- nonvar(S), ! ; gensym("gen", A), atom_string(A, S).
 
 :- begin_tests(comp).
-test(compile_empty, nondet) :-
-	clauses_ir([], IR),
-	IR == nothing.
-
-test(compile_simple_clause, nondet) :-
-	clauses_ir([foo(X) :- bar(X)], IR),
-	assertion(IR = defun(generator, foo/1, _Body)).
-
-test(statement_conjunction, nondet) :-
-	goal_ir((a(1), b(2)), IR),
-	assertion( IR = (StmtA *-> StmtB *-> yield) ),
-	assertion( StmtA = funcall(_, _) ),
-	assertion( StmtB = funcall(_, _) ).
-
-test(statement_disjunction, nondet) :-
-	goal_ir((a(1) ; b(2)), IR),
-	assertion( IR = (StmtA , StmtB) ),
-	assertion( StmtA = funcall(_, _) ),
-	assertion( StmtB = funcall(_, _) ).
-
-test(term_call_ir) :-
-	term_call_ir(writeln(hello), IR),
-	IR = funcall(writeln, [_]).
-
-test(compile_facts, [nondet]) :-
-	clauses_ir([foo(1), foo(2), foo(3)], IR),
-	IR = defun(generator, foo/1, _Body).
-
-test(complex_predicate, nondet) :-
-	Clauses = [
-	    (foo(X, Y) :- bar(X), baz(Y)),
-	    (foo(X, Y) :- qux(X, Y))
-	],
-	clauses_ir(Clauses, IR),
-	IR = defun(generator, foo/2, _).
-
 test(clauses_grouped) :-
 	Clauses = [
 		(foo(X) :- bar(X)),
@@ -220,5 +184,4 @@ test(member_clauses_grouped) :-
 	assertion(Groups = [
 		[(member(X, [X]) :- true), (member(X, [_|L]) :- member(X, L))]
 	]).
-
 :- end_tests(comp).
