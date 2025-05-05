@@ -5,7 +5,14 @@
 js(T, S) :- js(T, S, []).
 
 fun_name(Name/Arity) --> js_atom(Name), "_", js(\Arity).
-
+fun_ident(Name/Arity) -->
+	{
+		fun_name(Name/Arity, FName, []),
+		atom_codes(A, FName),
+		js_escape_ident(A, AIdent),
+		atom_codes(AIdent, Ident)
+	},
+	Ident.
 %%
 %% JavaScript code generation
 %%
@@ -13,15 +20,16 @@ fun_name(Name/Arity) --> js_atom(Name), "_", js(\Arity).
 % Tracing clause for debugging
 % Generator function
 js(defun(generator, Name/Arity, Body)) -->
-	"function* ", fun_name(Name/Arity), "(...args) { \n",
+	"function* ", fun_ident(Name/Arity), "(...args) { \n",
 	"const ", js($.("CALLED_TERM")), " = ", called_term_expr_(Name/Arity), ";\n",
 	Body,
 	"\n}".
 
 % Function call
 js(funcall(Name, Args)) -->
+
 	{ length(Args, N) },
-	fun_name(Name/N), "(", js_args(Args), ")".
+	fun_ident(Name/N), "(", js_args(Args), ")".
 
 js(Name := Value) --> "const ", Name, "=", Value, ";\n".
 

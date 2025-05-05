@@ -1,0 +1,13 @@
+#!/usr/bin/env __run
+
+fout="$(mktemp)"
+>&2 swipl -l compile.pl -- "$1" $fout
+
+cat runtime.js $fout
+echo
+
+echo "
+const start = performance.now();
+for (const _ of main_0()) break;
+console.log('Elapsed: ' + ((performance.now() - start) / 1000) + ' seconds');
+"

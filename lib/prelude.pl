@@ -1,5 +1,5 @@
 % Basic Prolog predicates
-%A = A.
+A = A.
 
 %%% List operations %%%
 member(X, [X|_]).

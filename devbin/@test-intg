@@ -2,7 +2,6 @@
 set -euo pipefail
 
 # Determine paths
-script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 tests_dir="$PLTS_HOME/test/in"
 bundle_script="$PLTS_HOME/devbin/@bundle"
 

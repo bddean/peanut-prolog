@@ -1,2 +1,0 @@
-#!/usr/bin/env __run
-./test/integration_test.sh

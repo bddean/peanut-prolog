@@ -1,0 +1,15 @@
+#!/usr/bin/env __run
+tmpdir=$(mktemp -d)
+for f in ./test/bench/*; do
+	echo "======= $f ======="
+	name="$(basename "$f")"
+	echo "---- plts ----"
+	@bundle-bench $f > $tmpdir/$name.js
+	find $tmpdir
+	node $tmpdir/$name.js
+	echo
+	echo "---- SWI ----"
+	swipl -l "$f" -g 'time(main)' -g halt
+	echo
+	echo
+done

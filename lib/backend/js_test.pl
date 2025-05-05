@@ -1,6 +1,11 @@
 :- use_module(js, [js/3, js/2]).
 
 :- begin_tests(js_backend).
+test(simple_unify, [nondet]) :-
+	phrase(js(funcall('=', ["1", "1"])), Codes),
+	string_codes(Result, Codes),
+	assertion("$003D_2(1, 1)" == Result).
+
 test(simple_funcall, [nondet]) :-
 	phrase(js(funcall(test, [])), Codes),
 	string_codes(Result, Codes),

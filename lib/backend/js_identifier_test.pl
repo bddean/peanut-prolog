@@ -4,6 +4,7 @@
 
 test(all_examples) :-
         Pairs = [
+            '='-"$003D",
             test-"test",
             "hello"-"hello",
             'hello-world'-"hello$002Dworld",
