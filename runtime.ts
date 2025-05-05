@@ -50,9 +50,8 @@ type Inst = Term | Atomic;
 type Val = Var | Inst;
 
 function deref(v: Val): Inst | UnboundVar {
-  if (! (v instanceof Var)) return v satisfies Inst;
-  if (v.ref === UnboundSym) return v as UnboundVar;
-  return deref(v.ref);
+  while (v instanceof Var && v.ref !== UnboundSym) v = v.ref;
+  return v as UnboundVar;
 }
 
 function* unify_2(A: Val, B: Val): Choices {

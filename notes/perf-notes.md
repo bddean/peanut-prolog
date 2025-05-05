@@ -1,3 +1,6 @@
+NOTE: The "observations" in this file are LLM hallucinations / lies / guesses.
+Need to verify this stuff with an actual profile!
+
 # Performance notes for the “yield-Prolog” compiler
 
 Date: 2025-05-05
