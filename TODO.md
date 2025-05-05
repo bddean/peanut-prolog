@@ -2,8 +2,7 @@
 ## Other control structures
 https://www.swi-prolog.org/pldoc/man?predicate=!/0
 ## call/n
-* ehhh just implement as intrinsic for now?? then we can use eval
-* or at least, like, call_single_term...
+- see ./cut-ideas.md
 
 ## TODO directives
 Not settled on the semantics for this but these would probably just run
@@ -31,6 +30,8 @@ Like Ciao's assertion language
 Impl: Theorem prover? CHR type deal?
 
 # Testing infrastructure
+
+## TODO Benchmarks!!!
 
 ## TODO quiet mode for unit tests (only log failures)
 

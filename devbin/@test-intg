@@ -1,2 +1,69 @@
 #!/usr/bin/env __run
-./test/integration_test.sh
+set -euo pipefail
+
+# Determine paths
+script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+tests_dir="$PLTS_HOME/test/in"
+bundle_script="$PLTS_HOME/devbin/@bundle"
+
+# Temporary workspace
+tmpdir=$(mktemp -d)
+trap 'rm -rf "$tmpdir"' EXIT
+
+# Counters
+fail_count=0
+total_count=0
+
+function verbosely_echo() {
+	[[ "${TEST_QUIET-}" ]] || echo "$@"
+}
+
+verbosely_echo "Running integration tests..."
+for test_file in "$tests_dir"/*.pl; do
+  (( total_count += 1 ))
+  name=$(basename "$test_file")
+
+  # Paths for expected and actual outputs
+  exp_out="$tmpdir/${name}.exp_out"
+  exp_err="$tmpdir/${name}.exp_err"
+  act_out="$tmpdir/${name}.act_out"
+  act_err="$tmpdir/${name}.act_err"
+
+  # Run expected output via SWI-Prolog
+  swipl -q -f "$test_file" -g main -g halt 1>"$exp_out" 2>"$exp_err" \
+  	|| true
+
+  # Compile to JavaScript
+  jsfile="$tmpdir/${name}.js"
+  "$bundle_script" "$test_file" >"$jsfile"
+
+  # Run compiled output via Node.js
+  node "$jsfile" 1>"$act_out" 2>"$act_err" || true
+
+  # Compare outputs
+  # TODO Compare status codes too.
+  if cmp -s "$exp_out" "$act_out" && cmp -s "$exp_err" "$act_err"; then
+     verbosely_echo "✓ $name: passed"
+  else
+    echo "✗ $name: FAILED"
+    echo "  Expected stdout:"
+    sed 's/^/    /' "$exp_out"
+    echo "  Actual stdout:"
+    sed 's/^/    /' "$act_out"
+    echo "  Expected stderr:"
+    sed 's/^/    /' "$exp_err"
+    echo "  Actual stderr:"
+    sed 's/^/    /' "$act_err"
+    ((fail_count++))
+  fi
+done
+
+# Summary and exit status
+echo
+if ((fail_count>0)); then
+  echo "$fail_count of $total_count tests failed"
+  exit 1
+else
+  echo  "All $total_count tests passed"
+  exit 0
+fi

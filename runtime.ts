@@ -19,6 +19,7 @@ export class Var {
   }
 }
 
+// TODO: These lines are unused.
 let CURRENT_MODULE = "user";
 export const Atom = (name: string) => Symbol.for(CURRENT_MODULE + ":" + name);
 
@@ -82,3 +83,28 @@ export const writeln_1 = function*(X: Val) {
 }
 
 export const fail_0 = function*() {}
+
+export const call_1 = function(T: Val) {
+  if (T instanceof Var) {
+    throw new Error("Can't call var.");
+  }
+  let name: string;
+  let args: Val[];
+  if (typeof T === "string") { // atom
+    name = T;
+    args = [];
+  } else if (T instanceof Term) {
+    name = T.tag;
+    args = T.args;
+  } else throw new Error('nyi');
+  const unescaped = `${name}_${args.length}`;
+  const ident = unescaped.replace(/(^[0-9])|[^A-Za-z0-9_]/g, char => {
+    const code = char.charCodeAt(0);
+    const zeroes = "0000";
+    const hex = code.toString(16);
+    const padded = zeroes.substring(0, 4 - hex.length) + hex;
+    return "$" + padded;
+  });
+  const fn = eval(ident);
+  return fn(...args);
+}
