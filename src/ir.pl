@@ -19,6 +19,7 @@ ir_type(break/1        , "Exit labelled block"  , break(label:ir)).
 ir_type(allocate_vars/1, "Make local logic vars", allocate_vars(names:maplist(ir))).
 ir_type('$'/1, "Predicate / atom identifier", $(_:ir)).
 ir_type('$.'/1, "Compiler-internal atom identifier", $.(_:ir)).
+% TODO we're missing a few types here -- double check backned code.
 
 ir_type(defun/3, "Define a named function in module scope", defun(
   type: fn_type_,
