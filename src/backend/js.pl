@@ -32,7 +32,6 @@ js(funcall(Name, Args)) -->
 js(Name := Value) --> "const ", Name, "=", Value, ";\n".
 
 js(allocate_vars(VarNameList)) -->
-	{ writeln(ok:VarNameList) },
 	"const [", js_args(VarNameList), "] = Var.allocate();\n".
 
 js(nothing) --> "".

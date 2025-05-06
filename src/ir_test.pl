@@ -40,11 +40,11 @@ test(real_defun, [nondet]) :-
 		),nothing
 	)),
 	walk_ir(test_tform, IR0, IR),
-	assertion(IR =\= IR0).
+	assertion(IR \= IR0).
 
 test(real_alloc, [nondet]) :-
 	IR0 = allocate_vars([$.(0),$.(1)]),
 	walk_ir(test_tform, IR0, IR),
-	assertion(IR == IR0).
+	assertion(IR \= IR0).
 
 :- end_tests(ir_test).

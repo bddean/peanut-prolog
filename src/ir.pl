@@ -61,9 +61,6 @@ walk_kids_(G, IR0, IR) :-
 	IR =.. [Tag|Args].
 
 walk_kids__descend_(G, Type, Kid0, Kid) :-
-	writeln(walk_kids__descend_(G, Type, Kid0, Kid)),
-	fail.
-walk_kids__descend_(G, Type, Kid0, Kid) :-
 	Type = _:ir *-> call(walk_ir(G), Kid0, Kid)
 	; Type = _:maplist(ir) *-> maplist(walk_ir(G), Kid0, Kid)
 	; Kid = Kid0.
