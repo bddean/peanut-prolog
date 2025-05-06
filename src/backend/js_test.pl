@@ -27,6 +27,11 @@ test(js_atom_dollar) :-
 	Result = "test",
 	!.
 
+test(js_predicate_name, [nondet]) :-
+	phrase(js($('=', 2)), Codes),
+	string_codes(Result, Codes),
+	assertion(Result == "$003D_2").
+
 test(var_term) :-
 	phrase(js(\('$VAR'(0))), Codes),
 	!,

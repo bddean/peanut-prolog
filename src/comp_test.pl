@@ -7,7 +7,7 @@ test(compile_empty, nondet) :-
 
 test(compile_simple_clause, nondet) :-
 	clauses_ir([foo(X) :- bar(X)], IR),
-	assertion(IR = defun(generator, foo/1, _Body)).
+	assertion(IR = defun(generator, $(foo, 1), _Body)).
 
 test(statement_conjunction, nondet) :-
 	goal_ir((a(1), b(2)), IR),
@@ -27,7 +27,7 @@ test(term_call_ir) :-
 
 test(compile_facts, [nondet]) :-
 	clauses_ir([foo(1), foo(2), foo(3)], IR),
-	IR = defun(generator, foo/1, _Body).
+	IR = defun(generator, $(foo, 1), _Body).
 
 test(complex_predicate, nondet) :-
 	Clauses = [
@@ -35,6 +35,6 @@ test(complex_predicate, nondet) :-
 	    (foo(X, Y) :- qux(X, Y))
 	],
 	clauses_ir(Clauses, IR),
-	IR = defun(generator, foo/2, _).
+	IR = defun(generator, $(foo, 2), _).
 
 :- end_tests(comp_test).

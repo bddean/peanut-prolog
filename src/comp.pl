@@ -49,6 +49,7 @@ declaration_ir(_) :- throw("Declarations not supported yet").
 % 2. Then actually compile to the IR!
 clauses_ir([], nothing).
 clauses_ir(Clauses, defun(generator, Spec, (
+	$.("CALLED_TERM") := Callee,
 	allocate_vars(VarNames),
 	Impls
 ))) :-
@@ -65,8 +66,14 @@ clauses_ir(Clauses, defun(generator, Spec, (
 	normalize_clause(FirstClause, (NormHead :- _)),
 	functor(NormHead, Name, Arity),
 
+	memberchk(Arity-Callee, [
+		0- \Name,
+		_-make_term(\Name, arguments)
+	]),
+
+
 	% Build the IR
-	Spec = Name/Arity,
+	Spec = $(Name, Arity),
 	normalize_and_compile_clauses(Clauses, Impls).
 
 normalize_and_compile_clauses([], nothing).

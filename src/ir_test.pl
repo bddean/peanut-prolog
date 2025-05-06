@@ -23,11 +23,11 @@ test(list_args, [nondet]) :-
 	], seen)).
 
 test(simple_defun, [nondet]) :-
-	IR0 = defun(generator, asdf/1, (
+	IR0 = defun(generator, $(asdf, 1), (
 		yield
 	)),
 	walk_ir(test_tform, IR0, IR),
-	assertion(defun(generator, asdf/1, (
+	assertion(defun(generator, $(asdf, 1, seen), (
 		yield(seen)
 	), seen) == IR).
 

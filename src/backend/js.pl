@@ -17,10 +17,13 @@ fun_ident(Name/Arity) -->
 %% JavaScript code generation
 %%
 
+js($(Name, Arity)) --> fun_ident(Name/Arity).
+js(make_term(Name, Args)) --> "new Term(", Name, ",", Args, ")".
+js(arguments) --> "args".
+
 % Generator function
-js(defun(generator, Name/Arity, Body)) -->
-	"function* ", fun_ident(Name/Arity), "(...args) { \n",
-	"const ", js($.("CALLED_TERM")), " = ", called_term_expr_(Name/Arity), ";\n",
+js(defun(generator, Ident, Body)) -->
+	"function* ", Ident, "(...args) { \n",
 	Body,
 	"\n}".
 
@@ -118,7 +121,3 @@ js_escape_code(0'\n) --> "\\n".   % Newline
 js_escape_code(0'\r) --> "\\r".   % Carriage return
 js_escape_code(0'\t) --> "\\t".   % Tab
 js_escape_code(C) --> [C].        % Regular character
-
-called_term_expr_(Name/0) --> js(\Name).
-called_term_expr_(Name/Arity) --> { Arity > 0 },
-	"new Term(", js(\Name), ", args)".

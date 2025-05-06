@@ -3,10 +3,7 @@
 	walk_ir/3
 ]).
 
-% A node spec is node_term(name:type, ....)
-
 %! ir_node(Name, Spec, Description).
-
 ir_type(','/2          , "Statement sequence"   , (goal:ir, goals:ir)).
 ir_type('*->'/2        , "for...of loop"        , (generator:ir *-> body:ir)).
 ir_type('->'/2         , "if statement"         , (condition_expr:ir -> body:ir)).
@@ -17,15 +14,43 @@ ir_type(funcall/2      , "Call a function"      , funcall(name:atom, args: mapli
 ir_type(':'/2          , "Labelled block"       , (ident:ir) : (block:ir)).
 ir_type(break/1        , "Exit labelled block"  , break(label:ir)).
 ir_type(allocate_vars/1, "Make local logic vars", allocate_vars(names:maplist(ir))).
-ir_type('$'/1, "Predicate / atom identifier", $(_:ir)).
-ir_type('$.'/1, "Compiler-internal atom identifier", $.(_:ir)).
-% TODO we're missing a few types here -- double check backned code.
+ir_type(
+	make_term/2,
+	"Manually construct a term. Usually you'd want \\/1 instead.
+
+Note that args is `ir` not `maplist(ir)` -- it's not a prolog list but
+an expression that evaluates to a host-language list.",
+	make_term(tag:ir, args:ir)
+).
+ir_type(arguments/0, "Arguments list for current function", arguments).
+
+ir_type('$'/1  , "atom identifier", $(name:atom)).
+ir_type('$'/2  , "predicate ident", $(name:atom, arity:number)).
+ir_type('$.'/1 , "Compiler-internal atom identifier" , $.(_:ir)).
+
+ir_type(
+	as/2,
+	"Alias in import list",
+	as(foreign_name:ir, local_name:ir)
+).
 
 ir_type(defun/3, "Define a named function in module scope", defun(
   type: fn_type_,
-	name: fn_name_,
+	name: ir,
 	body: ir
 )).
+ir_type(
+	import/2,
+	"Import statement compiled from a `:- use_module(...) directive.
+
+One minor gotcha: The path argument isn't transformed to
+allow backends to integrate better with host module systems.
+",
+	import(path:term, importList:maplist(ir))
+).
+
+% TODO We're missing a few types here -- double check backend code.
+% TODO Integrate type checks into our other compiler tests.
 
 fn_type_(generator).
 fn_type_(predicate).
@@ -39,6 +64,8 @@ fn_name_(Name/Arity) :- atom(Name), number(Arity).
 % offered to the transformation, afterwards the children are visited.
 
 :- meta_predicate walk_ir(2, ?, ?).
+% TODO: More efficient to emit "closure" as we go bottom
+% up. Instead of pre-calling
 walk_ir(G) --> walk_kids(G), tform_node(G).
 tform_node(G, E0, E) :-
     (   call(G, E0, E)
