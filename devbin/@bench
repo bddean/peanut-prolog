@@ -11,8 +11,8 @@ for f in ./test/bench/*; do
 	#echo  "---- plts (bun) ----"
 	#bun $tmpdir/$name.js
 	#echo
-	#echo "---- SWI ----"
-	#swipl -l "$f" -g 'time(main)' -g halt
-	#echo
-	#echo
+	echo "---- SWI ----"
+	swipl -l "$f" -g 'time(main)' -g halt
+	echo
+	echo
 done
