@@ -1,5 +1,5 @@
-:- use_module(lib/comp).
-:- use_module(lib/backend/js).
+:- use_module(src/comp).
+:- use_module(src/backend/js).
 
 % Main predicate for compiling Prolog files to JavaScript
 main :-

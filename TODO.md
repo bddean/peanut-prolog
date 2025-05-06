@@ -40,7 +40,7 @@ Impl: Theorem prover? CHR type deal?
 
 ## TODO debug artifacts for integration tests
 Put the generated IR and compiled JS fragment (not bundle) in the var/ directory
-for debugging. Will need to add an export for terms_ir_debug to lib/comp.pl.
+for debugging. Will need to add an export for terms_ir_debug to src/comp.pl.
 
 
 # Refactoring

@@ -2,7 +2,7 @@
 
 This is a Prolog-to-JS compiler written in SWI-Prolog. Very early stages.
 
-Source is in ./lib. A JS runtime is compiled from ./runtime.ts.
+Source is in ./src. A JS runtime is compiled from ./runtime.ts.
 
 TODO list in in ./TODO.md. Mark items as IN_PROGRESS and DONE as you go
 through the list. Feel free to add tasks.
@@ -42,7 +42,7 @@ Repository-at-a-glance
 
 Top-level layout (paths are relative to the repo root):
 
-• lib/               Front-end & back-ends, all written in Prolog
+• src/               Front-end & back-ends, all written in Prolog
   • comp.pl          – reads *.pl files → builds IR (intermediate representation)
   • prelude.pl       – built-ins that are always available to user code
   • optimizations.pl – IR rewrites (peephole etc.)
@@ -86,7 +86,7 @@ so that the helper scripts are on your PATH.
 2. Run unit tests (plunit blocks inside Prolog source files):
 
        $ @test-unit            # all
-       $ @test-unit comp       # just lib/comp.pl:* tests
+       $ @test-unit comp       # just src/comp.pl:* tests
 
 3. Run integration tests:
 
@@ -151,7 +151,7 @@ Compiler pipeline (mental model)
         ▼                          ▼
    Generated JS  +  runtime.js  ───►  node  ───► behaviour identical to source
 
-The IR is documented inline in lib/comp.pl.  A predicate foo/2 becomes
+The IR is documented inline in src/comp.pl.  A predicate foo/2 becomes
 
     defun(generator, foo/2, BodyIR).
 
@@ -161,7 +161,7 @@ Within BodyIR the control structures make back-tracking explicit (yield*, *->, �
 Troubleshooting snippets
 -------------------------------------------------------------------------------
 
-• “undefined predicate js/3”:  make sure you loaded lib/backend/js.pl before
+• “undefined predicate js/3”:  make sure you loaded src/backend/js.pl before
   calling comp:compile_terms/3.
 • Runtime error in generated code?  Use   `node --trace-uncaught …`  to get a
   stack trace, then map the line back to IR with @bundle ‑-debug (TBD).

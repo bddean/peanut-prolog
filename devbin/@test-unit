@@ -2,7 +2,7 @@
 test_cmd=run_tests
 [[ -v 1 ]] &&	test_cmd="run_tests($1)"
 
-testfiles=$(find ./lib/ -name '*_test.pl' | sed 's/^/-l /')
+testfiles=$(find ./src/ -name '*_test.pl' | sed 's/^/-l /')
 
 swipl            \
   $testfiles     \
