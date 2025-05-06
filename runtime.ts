@@ -84,6 +84,7 @@ export const writeln_1 = function*(X: Val) {
 export const fail_0 = function*() {}
 
 export const call_1 = function(T: Val) {
+	T = deref(T);
   if (T instanceof Var) {
     throw new Error("Can't call var.");
   }
@@ -106,4 +107,42 @@ export const call_1 = function(T: Val) {
   });
   const fn = eval(ident);
   return fn(...args);
+}
+
+// TODO: Consider compiling this in...
+export const throw_1 = function*(Error: Val) {
+  throw deref(Error);
+}
+
+// =../2
+export const $003D$002E$002E_2 = function*(T: Val, List: Val) {
+	T = deref(T); List=deref(List);
+	if (typeof T === "string") {
+	  return yield* unify_2(List, new Term("[|]", [T, "[|]"]));
+	}
+	if (! (T instanceof Var)) {
+    if (! (T instanceof Term)) throw new Error('bad type');
+    const argsLs = T.args.reduceRight(
+      (acc, Arg) => new Term("[|]", [Arg, acc]),
+      '[|]',
+    );
+    const ConstructedList = new Term('[|]', [T.tag, argsLs]);
+    return yield* unify_2(ConstructedList, List);
+	}
+	if (List instanceof Term) {
+	  let [tag, argsLs] = List.args.map(deref) as [Val, Val];
+	  if (typeof tag !== "string") throw new Error('bad type ' + typeof tag);
+	  let args: Val[] = [];
+	  while (argsLs !== "[|]") {
+	    const t = deref(argsLs) as Term;
+	    if (t instanceof Var) throw new Error('uninst');
+	  	args.push(t.args[0]);
+	    argsLs = t.args[1];
+	  }
+	  if (args.length === 0) {
+	    return yield* unify_2(T, tag);
+	  }
+	  return yield* unify_2(T, new Term(tag, args));
+	}
+  throw new Error('uninst');
 }

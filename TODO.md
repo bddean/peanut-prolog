@@ -1,14 +1,17 @@
 # Features
-## Other control structures
+## TODO Other control structures
 https://www.swi-prolog.org/pldoc/man?predicate=!/0
-## call/n
-- see ./cut-ideas.md
+## DONE (for now) - call/n
+- see ./notes/call-ideas.md
+- 
 
 ## TODO directives
 Not settled on the semantics for this but these would probably just run
 at compile time. similar to Ciao Prolog.
 
 Make sure this is compatible with eventual self-hosting
+
+For now, just hardcode some. This is similar to what Ciao does.
 
 ## TODO Async predicates
 Which would compile to async generators
