@@ -38,4 +38,3 @@ test(complex_predicate, nondet) :-
 	IR = defun(generator, foo/2, _).
 
 :- end_tests(comp_test).
-

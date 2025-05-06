@@ -17,7 +17,6 @@ fun_ident(Name/Arity) -->
 %% JavaScript code generation
 %%
 
-% Tracing clause for debugging
 % Generator function
 js(defun(generator, Name/Arity, Body)) -->
 	"function* ", fun_ident(Name/Arity), "(...args) { \n",
@@ -27,13 +26,13 @@ js(defun(generator, Name/Arity, Body)) -->
 
 % Function call
 js(funcall(Name, Args)) -->
-
 	{ length(Args, N) },
 	fun_ident(Name/N), "(", js_args(Args), ")".
 
 js(Name := Value) --> "const ", Name, "=", Value, ";\n".
 
 js(allocate_vars(VarNameList)) -->
+	{ writeln(ok:VarNameList) },
 	"const [", js_args(VarNameList), "] = Var.allocate();\n".
 
 js(nothing) --> "".

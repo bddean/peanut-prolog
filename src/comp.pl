@@ -9,7 +9,7 @@
 :- use_module(library(readutil), [read_file_to_terms/3]).
 :- use_module(library(gensym), [gensym/2]).
 :- use_module('./optimizations').
-:- use_module('./ir_utils', [walk_ir/3]).
+:- use_module('./ir', [walk_ir/3]).
 
 % clauses_grouped groups a list of clauses (H :- B terms) into sublists
 % grouped by head name/arity.
