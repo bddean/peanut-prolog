@@ -89,7 +89,12 @@ js($.(X)) -->
 	{ format(string(Prefixed), "_~s", [X]) },
 	"$", js($Prefixed).
 
-% Helper predicates
+js(import(Path, Specs)) -->
+	{ path_pl_to_js(Path, JsMod) },
+	"import {", js_args(Specs), "} from ", js(\JsMod).
+
+
+%%%%%% Helper predicates %%%%%%%
 js_args([]) --> "".
 js_args([Arg]) --> Arg.
 js_args([Arg1, Arg2 | Args]) --> Arg1, ", ", js_args([Arg2 | Args]).
@@ -121,3 +126,28 @@ js_escape_code(0'\n) --> "\\n".   % Newline
 js_escape_code(0'\r) --> "\\r".   % Carriage return
 js_escape_code(0'\t) --> "\\t".   % Tab
 js_escape_code(C) --> [C].        % Regular character
+
+path_pl_to_js(Fn, S) :-
+	Fn =.. [Tag,Path], !,
+	path_package(Tag, Root),
+	path_string(Root/Path, S).
+path_pl_to_js(P, S) :- path_string(P, S).
+
+path_string(R/P, S) :- !,
+	path_string(P, Ps),
+	atomics_to_string([R, '/', Ps], S).
+path_string(A, S) :- atomics_to_string([A], S).
+
+path_package(library, "@pl-library").
+path_package(runtime, "@pl-runtime").
+
+:- begin_tests(js_paths). %%%%%%%%%%%%%%%%%%%%%%%%
+	test(lib, []) :-                               %
+		path_pl_to_js(library(lists/subpath), W),    %
+		assertion(W == "@pl-library/lists/subpath"). %
+                                                 %
+	test(relative) :-                              %
+		path_pl_to_js("./a/b/c", W),                 %
+		assertion(W == "./a/b/c").                   %
+:- end_tests(js_paths). %%%%%%%%%%%%%%%%%%%%%%%%%%
+

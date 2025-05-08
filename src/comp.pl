@@ -9,6 +9,7 @@
 :- use_module(library(readutil), [read_file_to_terms/3]).
 :- use_module(library(gensym), [gensym/2]).
 :- use_module('./optimizations').
+:- use_module('./directives').
 :- use_module('./ir', [walk_ir/3]).
 
 % clauses_grouped groups a list of clauses (H :- B terms) into sublists
@@ -38,9 +39,9 @@ terms_ir -->
 
 terms_ir__tform_(X, IR) :-
 	clauses_ir(X, IR) *-> true
-	; declaration_ir(X, IR).
-
-declaration_ir(_) :- throw("Declarations not supported yet").
+	; directive_ir(X, IR) *-> true
+	; format(string(Message), "Unrecognized directive or term: ~w", [X]),
+	domain_error(rule_or_directive, Message).
 
 % Compiles a list of Prolog clauses to an IR that can be passed to a backend
 % clauses_ir(+Clauses, -IR)

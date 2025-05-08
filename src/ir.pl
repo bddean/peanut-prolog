@@ -44,9 +44,15 @@ ir_type(
 	"Import statement compiled from a `:- use_module(...) directive.
 
 One minor gotcha: The path argument isn't transformed to
-allow backends to integrate better with host module systems.
+allow backends to allow each backend to integrate better
+with its host system.
 ",
-	import(path:term, importList:maplist(ir))
+	import(path:term, predicate_specs:maplist(ir))
+).
+ir_type(
+	export/2,
+	"See import/2",
+	export(modname:ir, predicate_specs:maplist(ir))
 ).
 
 % TODO We're missing a few types here -- double check backend code.
