@@ -1,5 +1,3 @@
 tsconfig.tsbuildinfo
 node_modules
-runtime.js
-output/
 test/var/
