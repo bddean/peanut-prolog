@@ -1,0 +1,3 @@
+#!/usr/bin/env __run
+npx tsc --build @packages/@pl-runtime
+# TODO: Build lib
