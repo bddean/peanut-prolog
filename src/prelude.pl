@@ -1,3 +1,5 @@
+:- use_module("pl-runtime").
+
 % Basic Prolog predicates
 A = A.
 
@@ -10,10 +12,14 @@ append([H|T], L, [H|Result]) :- append(T, L, Result).
 
 % TODO meta_predicate decl...
 apply(G0, Xs1) :-
+	add_args_(Xs1, G0, G),
+	call(G).
+
+add_args_(Xs, M:G0, M:G) :-	!, add_args_(Xs, G0, G).
+add_args_(Xs1, G0, G) :-
 	G0 =.. [Tag|Xs0],
 	append(Xs0, Xs1, Xs),
-	G =.. [Tag|Xs],
-	call(G).
+	G =.. [Tag|Xs].
 
 call(G, A, B, C, D, E, F, G, H, I) :- apply(G, [A, B, C, D, E, F, G, H, I]).
 call(G, A, B, C, D, E, F, G, H)    :- apply(G, [A, B, C, D, E, F, G, H]).

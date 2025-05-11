@@ -10,6 +10,7 @@
 :- use_module(library(gensym), [gensym/2]).
 :- use_module('./optimizations').
 :- use_module('./directives').
+:- use_module('./helpers').
 :- use_module('./ir', [walk_ir/3]).
 
 % clauses_grouped groups a list of clauses (H :- B terms) into sublists
@@ -21,14 +22,15 @@ clauses_grouped(Cs, [G|Gs]) :-
 	once((
 		append(G, Suffix, Cs),
 		( Suffix = []
-		; G=[(H0 :- _)|_],
-		  Suffix=[(H1 :- _)|_],
-		  functor(H0, A0, N0),
-		  functor(H1, A1, N1),
+		; clauses_grouped__first_spec_(G, A0/N0),
+			clauses_grouped__first_spec_(Suffix, A1/N1),
 		  A0/N0 \= A1/N1
 		)
 	)),
 	clauses_grouped(Suffix, Gs).
+
+clauses_grouped__first_spec_([(:- _)|_], (:-)/1).
+clauses_grouped__first_spec_([(H :- _)|_], A/N) :- functor(H, A, N).
 
 % terms_ir(Terms, IR) where Terms is like the output of
 % read_file_to_terms/3.
@@ -39,21 +41,26 @@ terms_ir -->
 
 terms_ir__tform_(X, IR) :-
 	clauses_ir(X, IR) *-> true
-	; directive_ir(X, IR) *-> true
-	; format(string(Message), "Unrecognized directive or term: ~w", [X]),
+	; format(string(Message), "Failed to compile clauses: ~w", [X]),
 	domain_error(rule_or_directive, Message).
 
 % Compiles a list of Prolog clauses to an IR that can be passed to a backend
 % clauses_ir(+Clauses, -IR)
-% TODO: Split this into two steps:
-% 1. Convert the clauses to a single disjunction, including unification to each head...
-% 2. Then actually compile to the IR!
 clauses_ir([], nothing).
+clauses_ir(Clauses, IR) :-
+	Clauses = [(:-_)|_],
+	maplist(arg(1), Clauses, Directives),
+	maplist(directive_ir, Directives, IRList),
+	args_list(IR, IRList).
+
 clauses_ir(Clauses, defun(generator, Spec, (
 	$.("CALLED_TERM") := Callee,
 	allocate_vars(VarNames),
 	Impls
 ))) :-
+	% Clauses are facts or rules, not directives.
+	( Clauses = [(_:-_)|_] -> true ; Clauses \= [(:- _)|_] ),
+
 	% Set up local variables to add to the generated closure.
 	% TODO: Re-use variables after backtracking instead of generating
 	% 	separately for each clause -- OR allocate at clause start instead
@@ -88,11 +95,10 @@ compile_clause((Head :- Body), (
 )) :-	goal_ir(Body, BodyIR).
 
 var_name_(N, $.(Name)) :- format(string(Name), "~d", [N]).
-arglist([], nothing).
-arglist([X], X).
-arglist([X|Xs], (X, As)) :- arglist(Xs, As).
+
 
 % Convert a clause to Head :- Body format
+normalize_clause((:- B), (:- B)) :- !.
 normalize_clause((H :- B), (H :- B)) :- !.
 normalize_clause(Fact, (Fact :- true)) :- !.
 

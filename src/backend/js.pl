@@ -1,5 +1,6 @@
 :- module(js, [js/3, js/2]).
 :- use_module(js_identifier, [js_escape_ident/2]).
+:- use_module(library(gensym), [gensym/2]).
 
 % Public interface
 js(T, S) :- js(T, S, []).
@@ -89,10 +90,24 @@ js($.(X)) -->
 	{ format(string(Prefixed), "_~s", [X]) },
 	"$", js($Prefixed).
 
+js(declare_module(Name)) -->
+	{ atom_string(Name, S) },
+	"registerModule(", js(\S), ", s => eval(s));\n".
+
 js(import(Path, Specs)) -->
 	{ path_pl_to_js(Path, JsMod) },
-	"import {", js_args(Specs), "} from ", js(\JsMod).
+	"import {", js_args(Specs), "} from ", js(\JsMod), ";\n".
 
+js(export(Specs)) -->	"export {", js_args(Specs), "};\n".
+
+% TODO: The globalThis trick we use is only approximately correct.
+% Use static analysis across files instead.
+js(import_all(Path)) -->
+	{ path_pl_to_js(Path, JsMod) },
+	{ gensym("mod", Tmp) },
+	"import * as ", js($.(Tmp)), " from ", js(\JsMod), ";\n",
+	"for (const [name, value] of Object.entries(", js($.(Tmp)), "))",
+	  "globalThis[name] = value;\n".
 
 %%%%%% Helper predicates %%%%%%%
 js_args([]) --> "".

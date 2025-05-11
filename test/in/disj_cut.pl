@@ -4,4 +4,4 @@ message :-
 	fail
 	; writeln("expect NOT to see this").
 
-main :- message ; true.
+top :- message ; true.

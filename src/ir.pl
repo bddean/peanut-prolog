@@ -39,6 +39,14 @@ ir_type(defun/3, "Define a named function in module scope", defun(
 	name: ir,
 	body: ir
 )).
+
+%%%%%% IR instructions related to modules %%%%%%
+ir_type(
+	declare_module/1,
+	"",
+	declare_module(name:atom)
+).
+
 ir_type(
 	import/2,
 	"Import statement compiled from a `:- use_module(...) directive.
@@ -49,10 +57,13 @@ with its host system.
 ",
 	import(path:term, predicate_specs:maplist(ir))
 ).
+
+ir_type(import_all/1, "import *", import_all(path:term)).
+
 ir_type(
-	export/2,
+	export/1,
 	"See import/2",
-	export(modname:ir, predicate_specs:maplist(ir))
+	export(predicate_specs:maplist(ir))
 ).
 
 % TODO We're missing a few types here -- double check backend code.

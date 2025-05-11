@@ -1,10 +1,12 @@
+:- module(simple_apply, []).
+
 say(X, Y) :- writeln(X), writeln(Y).
 stutter(Fill, X, Y) :-
 	writeln(X), writeln(Fill),
 	writeln(Y), writeln(Fill).
 
-main :-
-	apply(say, ["hello", "world"]),
-	call(say, "hi", "you"),
-	apply(stutter("uh"), ["bye", "planet"]),
-	call(stutter(uh), "see", "ya").
+top :-
+	apply(simple_apply:say, ["hello", "world"]),
+	call(simple_apply:say, "hi", "you"),
+	apply(simple_apply:stutter("uh"), ["bye", "planet"]),
+	call(simple_apply:stutter(uh), "see", "ya").

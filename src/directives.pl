@@ -1,18 +1,42 @@
 :- module(directives, [
-	directive_ir/2
+	directive_ir/2,
+	metapred_spec/2
 ]).
+:- use_module("./helpers").
 
+:- dynamic
+	metapred_spec/2.
+
+directive_ir((meta_predicate SpecArgs), []) :-
+	arglist(SpecArgs, Specs),
+	maplist(register_metapredicate_, Specs).
+
+directive_ir(use_module(Path), import_all(Path)).
 directive_ir(
-	use_module(path, plmods),
-	import(path, hostmods)
-) :- maplist(spec_ir_, plmods, hostmods).
+	use_module(Path, Plmods),
+	import(Path, Hostmods)
+) :- maplist(spec_ir_, Plmods, Hostmods).
 
 directive_ir(
 	module(Name, PlMods),
-	export($Name, HostMods)
-) :- maplist(spec_ir_, PlMods, HostMods).
+	(
+		declare_module(AName),
+		export(HostMods)
+	)
+) :-
+	atomic_list_concat([Name], AName),
+	maplist(spec_ir_, PlMods, HostMods).
 
-%directive_ir(module(Name, Exports), export()).
+directive_ir(
+	module(Name),
+	declare_module(AName)
+) :- atomic_list_concat([Name], AName).
+
+%% TODO this can be done with goal_expansion when we have
+%% host fn literals.
+register_metapredicate_(Spec) :-
+	functor(Spec, Tag, Arity),
+	assertz(metapred_spec(Tag/Arity, Spec)).
 
 spec_ir_(
 	Pred/Arity as Name,

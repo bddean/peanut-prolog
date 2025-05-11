@@ -1,13 +1,19 @@
 #!/usr/bin/env __run
 set -euo pipefail
 
+[[ -v 1 ]] &&	test_prefix="$1" || test_prefix=""
+
 # Determine paths
 tests_dir="$PLTS_HOME/test/in"
-bundle_script="$PLTS_HOME/devbin/@bundle"
 
 # Temporary workspace
 tmpdir=$(mktemp -d)
 trap 'rm -rf "$tmpdir"' EXIT
+
+vardir=./test/var/in/
+rm -rf "$vardir"
+mkdir -p "$vardir"
+echo 'Compiling artifacts to '"$vardir"
 
 # Counters
 fail_count=0
@@ -18,9 +24,9 @@ function verbosely_echo() {
 }
 
 verbosely_echo "Running integration tests..."
-for test_file in "$tests_dir"/*.pl; do
+for test_file in "$tests_dir"/"$test_prefix"*.pl; do
   (( total_count += 1 ))
-  name=$(basename "$test_file")
+  name=$(basename "$test_file" .pl)
 
   # Paths for expected and actual outputs
   exp_out="$tmpdir/${name}.exp_out"
@@ -29,12 +35,19 @@ for test_file in "$tests_dir"/*.pl; do
   act_err="$tmpdir/${name}.act_err"
 
   # Run expected output via SWI-Prolog
-  swipl -q -f "$test_file" -g main -g halt 1>"$exp_out" 2>"$exp_err" \
+  swipl -q -f "$test_file"\
+		-g "current_predicate($name:top/0) -> $name:top ; user:top." \
+		-g halt                                                     \
+		1>"$exp_out" 2>"$exp_err"                                   \
   	|| true
 
   # Compile to JavaScript
-  jsfile="$tmpdir/${name}.js"
-  "$bundle_script" "$test_file" >"$jsfile"
+  jsfile="$vardir/${name}.js"
+  swipl -l compile.pl --\
+		"$test_file" "$jsfile"
+
+	echo "try { for (const _ of top_0('top')) break; } catch(_) {throw _;}" \
+		>> "$jsfile"
 
   # Run compiled output via Node.js
   node "$jsfile" 1>"$act_out" 2>"$act_err" || true

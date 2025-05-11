@@ -7,7 +7,7 @@ g("haf gon to bed -").
 g("i stay up late.").
 g("i lik the bred.").
 
-main :-
+top :-
 	g(X),
 	writeln(X),
 	fail.

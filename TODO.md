@@ -3,7 +3,12 @@
 https://www.swi-prolog.org/pldoc/man?predicate=!/0
 ## DONE (for now) - call/n
 - see ./notes/call-ideas.md
-- 
+-  todo-- module closure terms which unify to fns
+		compiled_host_fn(js, mymod, "function*() {
+		  console.log('test', importedsymbol);
+		  yield;
+		}")
+
 
 ## TODO directives
 Not settled on the semantics for this but these would probably just run
@@ -26,7 +31,9 @@ I want a "set" type like SWI's dicts but more general
 
 https://platform.openai.com/playground/prompts?preset=aNjqRnCeYPbMtoL6sR3HMQe5
 ## TODO Atoms as symbols(?)
-## TODO modules
+## DONE modules (for now)
+import all is buggy but maybe i can fix after self hosting worjs
+
 ## TODO extensible unification
 ## TODO types
 Like Ciao's assertion language

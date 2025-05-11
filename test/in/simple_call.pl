@@ -1,3 +1,5 @@
+:- module(simple_call, []).
+
 hi :- writeln("hi").
 
-main :- call(hi), call(writeln("bye")).
+top :- call(simple_call:hi).%, call(writeln("bye")).

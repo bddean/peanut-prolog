@@ -1,5 +1,5 @@
 {
-  "name": "@pl-runtime",
+  "name": "pl-runtime",
   "version": "1.0.0",
   "description": "Prolog JS runtime",
   "type": "module",

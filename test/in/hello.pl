@@ -1,1 +1,3 @@
-main :-	writeln(hello).
+:- module(hello, []).
+
+top :-	writeln(hello).

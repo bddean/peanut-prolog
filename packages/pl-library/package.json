@@ -1,0 +1,15 @@
+{
+  "name": "pl-library",
+  "version": "1.0.0",
+  "description": "Prolog built-in libraries (stubs)",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./*": "./dist/*.js"
+  },
+  "files": ["index.js", "dist"],
+  "scripts": {
+    "build": "../../devbin/@build-lib"
+  }
+}

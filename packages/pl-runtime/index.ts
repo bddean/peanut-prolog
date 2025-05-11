@@ -17,11 +17,13 @@ export class Var {
     	this.ref = UnboundSym;
     }
   }
-}
 
-// TODO: These lines are unused.
-let CURRENT_MODULE = "user";
-export const Atom = (name: string) => Symbol.for(CURRENT_MODULE + ":" + name);
+  toString() {
+  	const val = deref(this);
+  	if (val instanceof Var) return `_V${val.id}`;
+  	return String(val);
+	}
+}
 
 export class Term {
   constructor(
@@ -41,6 +43,10 @@ export class Term {
       })
     );
   }
+
+  toString() {
+    return `${this.tag}(${this.args.map(String).join(", ")})`
+  }
 }
 
 type UnboundVar = Var & { ref: UnboundSym };
@@ -54,7 +60,7 @@ function deref(v: Val): Inst | UnboundVar {
   return v as UnboundVar;
 }
 
-function* unify_2(A: Val, B: Val): Choices {
+export function* unify_2(A: Val, B: Val): Choices {
   A = deref(A); B = deref(B);
   if (A === B) return yield;
   if (A instanceof Var) return yield* A.set(B);
@@ -77,25 +83,37 @@ function* unifyArgs(A: Val[], B: Val[], i = 0): Choices {
 }
 
 export const writeln_1 = function*(X: Val) {
-  console.log(deref(X));
+  console.log(String(deref(X)));
   yield;
 }
 
 export const fail_0 = function*() {}
 
+// Registry of module objects for dynamic calls.
+const moduleEvalFns = new Map<Atom, (s: string) => any>();
+export const registerModule = (name: Atom, evalInModule: (js: string) => any) => {
+  moduleEvalFns.set(name, evalInModule);
+}
+
+const predWithMod = (T: Val): [Atom, Val] =>
+  T instanceof Term && T.tag === ":" && T.args.length === 2
+    ? T.args.map(deref) as [Atom, Val]
+    : ["user", T];
+
 export const call_1 = function(T: Val) {
 	T = deref(T);
-  if (T instanceof Var) {
+  const [mod, goal] = predWithMod(T);
+  if (goal instanceof Var) {
     throw new Error("Can't call var.");
   }
   let name: string;
   let args: Val[];
-  if (typeof T === "string") { // atom
-    name = T;
+  if (typeof goal === "string") { // atom
+    name = goal;
     args = [];
-  } else if (T instanceof Term) {
-    name = T.tag;
-    args = T.args;
+  } else if (goal instanceof Term) {
+    name = goal.tag;
+    args = goal.args;
   } else throw new Error('nyi');
   const unescaped = `${name}_${args.length}`;
   const ident = unescaped.replace(/(^[0-9])|[^A-Za-z0-9_]/g, char => {
@@ -105,7 +123,7 @@ export const call_1 = function(T: Val) {
     const padded = zeroes.substring(0, 4 - hex.length) + hex;
     return "$" + padded;
   });
-  const fn = eval(ident);
+  const fn = moduleEvalFns.get(mod)!(ident);
   return fn(...args);
 }
 

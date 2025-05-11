@@ -27,7 +27,7 @@ test(term_call_ir) :-
 
 test(compile_facts, [nondet]) :-
 	clauses_ir([foo(1), foo(2), foo(3)], IR),
-	IR = defun(generator, $(foo, 1), _Body).
+	assertion(IR = defun(generator, $(foo, 1), _Body)).
 
 test(complex_predicate, nondet) :-
 	Clauses = [
