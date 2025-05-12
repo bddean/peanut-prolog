@@ -27,7 +27,7 @@ write_file(File, Content) :-
 
 % Display usage error
 usage_error :-
-    writeln('PLTS Compiler v0.1'),
+    writeln('Peanut Prolog Compiler v0.1'),
     writeln('Usage: swipl -q -f compile.pl -- input.pl output.js').
 
 :- main.

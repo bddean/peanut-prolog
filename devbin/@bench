@@ -5,10 +5,10 @@ for f in ./test/bench/*; do
 	echo "======= $f ======="
 	name="$(basename "$f")"
 	@bundle-bench $f > $tmpdir/$name.js
-	echo "---- plts (node) ----"
+	echo "---- Peanut (node) ----"
 	node $tmpdir/$name.js
 	echo
-	#echo  "---- plts (bun) ----"
+	#echo  "---- Peanut (bun) ----"
 	#bun $tmpdir/$name.js
 	#echo
 	echo "---- SWI ----"

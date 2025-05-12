@@ -1,6 +1,7 @@
 # Project
 
-This is a Prolog-to-JS compiler written in SWI-Prolog. Very early stages.
+This is a Prolog-to-JS compiler called Peanut Prolog written in
+SWI-Prolog. Very early stages.
 
 Source is in ./src. A JS runtime is compiled from ./runtime.ts.
 
@@ -73,7 +74,7 @@ Quick start
 
 All commands assume you are in the repo root **and** you have either
 
-    $ direnv allow    # or exported PATH + PLTS_HOME manually (see below)
+    $ direnv allow    # or exported PATH + PEANUT_HOME manually (see below)
 
 so that the helper scripts are on your PATH.
 
@@ -113,13 +114,13 @@ Environment variables
 
 • PATH is extended by .envrc so that every helper inside devbin/ can be
   invoked as “@…”.
-• PLTS_HOME is automatically exported to the repo root.  `devbin/__run` uses
+• PEANUT_HOME is automatically exported to the repo root.  `devbin/__run` uses
   this to locate the project even when called from sub-directories.
 
 If you don’t use direnv you can set these manually:
 
     $ export PATH="$PWD/devbin:$PATH"
-    $ export PLTS_HOME="$PWD"
+    $ export PEANUT_HOME="$PWD"
 
 -------------------------------------------------------------------------------
 Commit & review workflow

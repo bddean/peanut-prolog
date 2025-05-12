@@ -85,10 +85,10 @@ Uniform ABI
 -----------
 
 ```c
-typedef ChoiceGen* (*plts_funptr)(Val* args, int arity);
+typedef ChoiceGen* (*peanut_funptr)(Val* args, int arity);
 
-plts_funptr  plts_jit_compile(IR*);   // back-end specific
-void         plts_jit_free(plts_funptr);
+peanut_funptr  peanut_jit_compile(IR*);   // back-end specific
+void         peanut_jit_free(peanut_funptr);
 ```
 
 Back-end sketches
@@ -103,7 +103,7 @@ Back-end sketches
 
 Fallback & safety
 -----------------
-Targets that cannot implement `plts_jit_compile` reuse the interpreter from
+Targets that cannot implement `peanut_jit_compile` reuse the interpreter from
 approach 1; a build-time flag `--no-jit` can enforce that.
 
 Cut semantics
@@ -190,7 +190,7 @@ x
 1. `Var`, `Term`, `unify/2` — already present.
 2. Predicate registry
 3. `invoke/3` (or `metaCall/1` in JS variant).
-4. Optional: `plts_jit_compile/1` for back-ends that support JIT.
+4. Optional: `peanut_jit_compile/1` for back-ends that support JIT.
 
 With these primitives, any of the three working strategies can be layered on
 top while preserving full Prolog semantics, including cut.
@@ -314,7 +314,7 @@ When to pick it
 
   In practice each stack frame already stores `{gen, active}` so you can hang
   extra bookkeeping off it: timestamp, source-span, “retry” counter, etc.  A
-  simple `plts_trace(on|off)` could toggle a hook that prints the stack on
+  simple `peanut_trace(on|off)` could toggle a hook that prints the stack on
   every `pushCP`/`popCP`.  Adding breakpoints means checking a predicate-ID
   against a hash-set right in `withChoice()` — O(1); the overhead is zero when
   tracing is disabled.

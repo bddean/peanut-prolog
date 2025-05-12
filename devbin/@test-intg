@@ -4,7 +4,7 @@ set -euo pipefail
 [[ -v 1 ]] &&	test_prefix="$1" || test_prefix=""
 
 # Determine paths
-tests_dir="$PLTS_HOME/test/in"
+tests_dir="$PEANUT_HOME/test/in"
 
 # Temporary workspace
 tmpdir=$(mktemp -d)
