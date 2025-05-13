@@ -64,13 +64,14 @@ js(\'$VAR'(N)) -->
 	{ format(string(Name), "~d", [N]) },
 	!,
 	js($.(Name)).
-js(\[]) --> "\"[|]\"", !.  % SWI specific thing
+js(\[]) --> "Symbol.for(\"[|]\")", !.  % SWI specific thing
 js(\N) --> { number(N), number_codes(N, Codes) }, Codes.
 js(\Term) -->	 { string(Term) }, "\"", js_escape(Term), "\"".
 js(\Term) -->
 	{ atom(Term), atom_string(Term, TermStr) },
 	% TODO: Consider changing atoms to symbols in JavaScript
-	js(\TermStr).
+	"Symbol.for(\"", js_escape(TermStr), "\")".
+
 js(\Term) -->
 	%% Handle any other compound terms
 	{ compound(Term), \+ Term = '$VAR'(_) },
@@ -91,8 +92,7 @@ js($.(X)) -->
 	"$", js($Prefixed).
 
 js(declare_module(Name)) -->
-	{ atom_string(Name, S) },
-	"registerModule(", js(\S), ", s => eval(s));\n".
+	"registerModule(", js(\Name), ", s => eval(s));\n".
 
 js(import(Path, Specs)) -->
 	{ path_pl_to_js(Path, JsMod) },

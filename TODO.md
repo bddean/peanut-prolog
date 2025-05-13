@@ -1,4 +1,6 @@
 # Features
+## IN PROG meta predicate namespacing
+
 ## TODO Other control structures
 https://www.swi-prolog.org/pldoc/man?predicate=!/0
 ## DONE (for now) - call/n
@@ -30,7 +32,8 @@ type?
 I want a "set" type like SWI's dicts but more general
 
 https://platform.openai.com/playground/prompts?preset=aNjqRnCeYPbMtoL6sR3HMQe5
-## TODO Atoms as symbols(?)
+## TODO Optimize atoms
+Hoist Symbol.for calls. (Probably add create_symbol to ir).
 ## DONE modules (for now)
 import all is buggy but maybe i can fix after self hosting worjs
 

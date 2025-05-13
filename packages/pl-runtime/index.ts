@@ -20,6 +20,7 @@ export class Var {
 
   toString() {
   	const val = deref(this);
+  	if (typeof val === "symbol") return Symbol.keyFor(val);
   	if (val instanceof Var) return `_V${val.id}`;
   	return String(val);
 	}
@@ -27,7 +28,7 @@ export class Var {
 
 export class Term {
   constructor(
-    public readonly tag: string,
+    public readonly tag: Atom,
     public readonly args: Val[],
   ) {}
 
@@ -45,13 +46,14 @@ export class Term {
   }
 
   toString() {
-    return `${this.tag}(${this.args.map(String).join(", ")})`
+    const tagName = Symbol.keyFor(this.tag);
+    return `${tagName}(${this.args.map(String).join(", ")})`
   }
 }
 
 type UnboundVar = Var & { ref: UnboundSym };
 type Atomic = Atom | string | number | null | bigint; // TODO...
-type Atom = string; // nosubmit...?
+type Atom = symbol;
 type Inst = Term | Atomic;
 type Val = Var | Inst;
 
@@ -83,7 +85,9 @@ function* unifyArgs(A: Val[], B: Val[], i = 0): Choices {
 }
 
 export const writeln_1 = function*(X: Val) {
-  console.log(String(deref(X)));
+  const val = deref(X);
+  const s = typeof val === "symbol"  ? Symbol.keyFor(val) : String(val);
+  console.log(s);
   yield;
 }
 
@@ -95,10 +99,12 @@ export const registerModule = (name: Atom, evalInModule: (js: string) => any) =>
   moduleEvalFns.set(name, evalInModule);
 }
 
+const SYM_COLON = Symbol.for(":");
+const SYM_USER = Symbol.for("user");
 const predWithMod = (T: Val): [Atom, Val] =>
-  T instanceof Term && T.tag === ":" && T.args.length === 2
+  T instanceof Term && T.tag === SYM_COLON && T.args.length === 2
     ? T.args.map(deref) as [Atom, Val]
-    : ["user", T];
+    : [SYM_USER, T];
 
 export const call_1 = function(T: Val) {
 	T = deref(T);
@@ -106,16 +112,16 @@ export const call_1 = function(T: Val) {
   if (goal instanceof Var) {
     throw new Error("Can't call var.");
   }
-  let name: string;
+  let name: symbol;
   let args: Val[];
-  if (typeof goal === "string") { // atom
+  if (typeof goal === "symbol") { // atom
     name = goal;
     args = [];
   } else if (goal instanceof Term) {
     name = goal.tag;
     args = goal.args;
   } else throw new Error('nyi');
-  const unescaped = `${name}_${args.length}`;
+  const unescaped = `${Symbol.keyFor(name)}_${args.length}`;
   const ident = unescaped.replace(/(^[0-9])|[^A-Za-z0-9_]/g, char => {
     const code = char.charCodeAt(0);
     const zeroes = "0000";
@@ -132,26 +138,28 @@ export const throw_1 = function*(Error: Val) {
   throw deref(Error);
 }
 
+const SYM_LIST = Symbol.for("[|]");
+
 // =../2
 export const $003D$002E$002E_2 = function*(T: Val, List: Val) {
 	T = deref(T); List=deref(List);
-	if (typeof T === "string") {
-	  return yield* unify_2(List, new Term("[|]", [T, "[|]"]));
+	if (typeof T === "symbol") {
+	  return yield* unify_2(List, new Term(SYM_LIST, [T, SYM_LIST]));
 	}
 	if (! (T instanceof Var)) {
     if (! (T instanceof Term)) throw new Error('bad type');
     const argsLs = T.args.reduceRight(
-      (acc, Arg) => new Term("[|]", [Arg, acc]),
-      '[|]',
+      (acc, Arg) => new Term(SYM_LIST, [Arg, acc]),
+      SYM_LIST,
     );
-    const ConstructedList = new Term('[|]', [T.tag, argsLs]);
+    const ConstructedList = new Term(SYM_LIST, [T.tag, argsLs]);
     return yield* unify_2(ConstructedList, List);
 	}
 	if (List instanceof Term) {
 	  let [tag, argsLs] = List.args.map(deref) as [Val, Val];
-	  if (typeof tag !== "string") throw new Error('bad type ' + typeof tag);
+	  if (typeof tag !== "symbol") throw new Error('bad type ' + typeof tag);
 	  let args: Val[] = [];
-	  while (argsLs !== "[|]") {
+	  while (argsLs !== SYM_LIST) {
 	    const t = deref(argsLs) as Term;
 	    if (t instanceof Var) throw new Error('uninst');
 	  	args.push(t.args[0]);
