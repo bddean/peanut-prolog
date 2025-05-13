@@ -1,8 +1,13 @@
 # Features
 ## IN PROG meta predicate namespacing
+## TODO module fixups
+- fix global imports...
+- fix special modules like runtime / system / user
+- fix paths
 
 ## TODO Other control structures
 https://www.swi-prolog.org/pldoc/man?predicate=!/0
+## TODO other basic builtins
 ## DONE (for now) - call/n
 - see ./notes/call-ideas.md
 -  todo-- module closure terms which unify to fns
@@ -11,8 +16,7 @@ https://www.swi-prolog.org/pldoc/man?predicate=!/0
 		  yield;
 		}")
 
-
-## TODO directives
+## PART directives
 Not settled on the semantics for this but these would probably just run
 at compile time. similar to Ciao Prolog.
 
