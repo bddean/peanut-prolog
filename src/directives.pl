@@ -1,11 +1,16 @@
 :- module(directives, [
 	directive_ir/2,
-	metapred_spec/2
+	metapred_spec/2,
+	compile_current_module/1
 ]).
 :- use_module("./helpers").
 
 :- dynamic
-	metapred_spec/2.
+	metapred_spec/2,
+	compile_current_module/1.
+
+% By default we assume all unqualified calls live in module `user`.
+compile_current_module(user).
 
 directive_ir((meta_predicate SpecArgs), []) :-
 	arglist(SpecArgs, Specs),

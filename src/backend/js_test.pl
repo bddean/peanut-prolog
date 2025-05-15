@@ -1,20 +1,15 @@
 :- use_module(js, [js/3, js/2]).
 
 :- begin_tests(js_backend).
-test(simple_unify, [nondet]) :-
-	phrase(js(funcall('=', ["1", "1"])), Codes),
-	string_codes(Result, Codes),
-	assertion("$003D_2(1, 1)" == Result).
-
 test(simple_funcall, [nondet]) :-
 	phrase(js(funcall(test, [])), Codes),
 	string_codes(Result, Codes),
-	assertion("test_0()" == Result).
+	assertion("$_STARMODS.test_0()" == Result).
 
 test(funcall_with_args) :-
 	phrase(js(funcall(test, ["\"X\"", "123"])), Codes), !,
 	string_codes(Result, Codes),
-	assertion("test_2(\"X\", 123)" == Result).
+	assertion("$_STARMODS.test_2(\"X\", 123)" == Result).
 
 test(term_literal) :-
 	phrase(js(\foo(a)), Codes), !,
@@ -30,7 +25,7 @@ test(js_atom_dollar) :-
 test(js_predicate_name, [nondet]) :-
 	phrase(js($('=', 2)), Codes),
 	string_codes(Result, Codes),
-	assertion(Result == "$003D_2").
+	assertion(Result == "$_STARMODS.$003D_2").
 
 test(var_term) :-
 	phrase(js(\('$VAR'(0))), Codes),

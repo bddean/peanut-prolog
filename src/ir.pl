@@ -59,6 +59,7 @@ with its host system.
 ).
 
 ir_type(import_all/1, "import *", import_all(path:term)).
+ir_type(file_start, "Host-specific file_prelude", file_start).
 
 ir_type(
 	export/1,

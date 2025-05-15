@@ -1,11 +1,12 @@
 # Features
-## IN PROG meta predicate namespacing
 ## TODO module fixups
-- fix global imports...
 - fix special modules like runtime / system / user
 - fix paths
 
+## TODO term and clause expansion
+## IN PROG meta predicate namespacing
 ## TODO Other control structures
+## TODO dynamic predicates
 https://www.swi-prolog.org/pldoc/man?predicate=!/0
 ## TODO other basic builtins
 ## DONE (for now) - call/n
@@ -16,7 +17,7 @@ https://www.swi-prolog.org/pldoc/man?predicate=!/0
 		  yield;
 		}")
 
-## PART directives
+## IN PROGRESS directives
 Not settled on the semantics for this but these would probably just run
 at compile time. similar to Ciao Prolog.
 
@@ -57,5 +58,8 @@ Put the generated IR and compiled JS fragment (not bundle) in the var/ directory
 for debugging. Will need to add an export for terms_ir_debug to src/comp.pl.
 
 
-# Refactoring
-## TODO Review code for general elegance / readability
+# TODO Improve ISO compat
+I can keep string/atom/chars distinction by using backticks for strings
+
+This is recommended in some post critiquing SWI 7's compat breaking
+changes. SWI supports this syntax with flags

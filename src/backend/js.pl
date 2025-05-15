@@ -1,22 +1,35 @@
 :- module(js, [js/3, js/2]).
 :- use_module(js_identifier, [js_escape_ident/2]).
 :- use_module(library(gensym), [gensym/2]).
+:- use_module('../comp_context').
 
 % Public interface
 js(T, S) :- js(T, S, []).
 
+% Utils
 fun_name(Name/Arity) --> js_atom(Name), "_", js(\Arity).
+
 fun_ident(Name/Arity) -->
 	{
 		fun_name(Name/Arity, FName, []),
 		atom_codes(A, FName),
 		js_escape_ident(A, AIdent),
-		atom_codes(AIdent, Ident)
+		atom_codes(AIdent, Ident),
+
+		% Hack to support not-explicitly-qualified predicates
+		( predicate_is_explicitly_defined(Name, Arity)
+		-> Prefix = ""
+		; Prefix = "$_STARMODS."
+		)
 	},
-	Ident.
+	Prefix, Ident.
+
 %%
 %% JavaScript code generation
 %%
+js(file_start) -->
+	"const ", js($.("STARMODS")), " = ", "{};\n",
+	"import { Var, Term, registerModule } from 'pl-runtime';\n".
 
 js($(Name, Arity)) --> fun_ident(Name/Arity).
 js(make_term(Name, Args)) --> "new Term(", Name, ",", Args, ")".
@@ -106,8 +119,7 @@ js(import_all(Path)) -->
 	{ path_pl_to_js(Path, JsMod) },
 	{ gensym("mod", Tmp) },
 	"import * as ", js($.(Tmp)), " from ", js(\JsMod), ";\n",
-	"for (const [name, value] of Object.entries(", js($.(Tmp)), "))",
-	  "globalThis[name] = value;\n".
+	"Object.assign(", js($.("STARMODS")), ", ", js($.(Tmp)),");\n".
 
 %%%%%% Helper predicates %%%%%%%
 js_args([]) --> "".

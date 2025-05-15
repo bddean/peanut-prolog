@@ -8,6 +8,7 @@
 :- use_module(library(debug), [assertion/1]).
 :- use_module(library(readutil), [read_file_to_terms/3]).
 :- use_module(library(gensym), [gensym/2]).
+:- use_module('./comp_context').
 :- use_module('./optimizations').
 :- use_module('./directives').
 :- use_module('./helpers').
@@ -151,8 +152,9 @@ compile_term_ir(Backend) -->
 	walk_ir(compile_node(Backend)).
 
 compile_terms(Backend, Terms, Out) :-
-  terms_ir(Terms, IRs),
-	maplist(compile_term_ir(Backend), IRs, OutCodes),
+	maplist(ingest_term, Terms),
+	terms_ir(Terms, IRs),
+	maplist(compile_term_ir(Backend), [file_start|IRs], OutCodes),
 	maplist(codes_to_string, OutCodes, Outs),
 	atomics_to_string(Outs, Out).
 
