@@ -165,13 +165,13 @@ path_string(R/P, S) :- !,
 	atomics_to_string([R, '/', Ps], S).
 path_string(A, S) :- atomics_to_string([A], S).
 
-path_package(library, "@pl-library").
-path_package(runtime, "@pl-runtime").
+path_package(library, "pl-library").
+path_package(runtime, "pl-runtime").
 
 :- begin_tests(js_paths). %%%%%%%%%%%%%%%%%%%%%%%%
 	test(lib, []) :-                               %
 		path_pl_to_js(library(lists/subpath), W),    %
-		assertion(W == "@pl-library/lists/subpath"). %
+		assertion(W == "pl-library/lists/subpath"). %
                                                  %
 	test(relative) :-                              %
 		path_pl_to_js("./a/b/c", W),                 %
