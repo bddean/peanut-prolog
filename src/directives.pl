@@ -13,7 +13,7 @@
 compile_current_module(user).
 
 directive_ir((meta_predicate SpecArgs), []) :-
-	arglist(SpecArgs, Specs),
+	args_list(SpecArgs, Specs),
 	maplist(register_metapredicate_, Specs).
 
 directive_ir(use_module(Path), import_all(Path)).

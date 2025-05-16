@@ -3,7 +3,9 @@
 cd ./library
 find . -name '*.pl' | while read in_file
 do
-	out_file=../packages/pl-library/dist/"$in_file".mjs
+	dir="$(dirname "$in_file")"
+	name="$(basename -s .pl "$in_file")"
+	out_file=../packages/pl-library/dist/"$dir"/"$name".js
 	mkdir -p "$(dirname "$out_file")"
 	swipl -l ../compile.pl -- "$in_file" "$out_file"
 done

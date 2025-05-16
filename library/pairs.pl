@@ -1,7 +1,5 @@
-%:- module(pairs, []).
+:- module(pairs, [pairs_keys/2]).
 % This is just a stub for now to test import/export.
 
-flip_pairs([], []).
-flip_pairs([Key-Val|Pairs], [Val-Key|Flipped]) :-
-    flip_pairs(Pairs, Flipped).
-
+pairs_keys([], []).
+pairs_keys([K-_|Ps], [K|Ks]) :- pairs_keys(Ps, Ks).

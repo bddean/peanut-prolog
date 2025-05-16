@@ -9,4 +9,4 @@ args_list(Empty, Empty, []).
 args_list(_, X, [X]).
 args_list(Empty, (X, As), [X|Xs]) :-
 	Xs=[_|_],
-	arglist(Empty, Xs, As).
+	args_list(Empty, As, Xs).

@@ -111,6 +111,7 @@ js(import(Path, Specs)) -->
 	{ path_pl_to_js(Path, JsMod) },
 	"import {", js_args(Specs), "} from ", js(\JsMod), ";\n".
 
+js(export([])) -->	!, "".
 js(export(Specs)) -->	"export {", js_args(Specs), "};\n".
 
 % TODO: The globalThis trick we use is only approximately correct.
