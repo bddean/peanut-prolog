@@ -110,21 +110,62 @@ Key questions that any design must answer:
 - How do you handle expansion conflicts?
 - What about recursive expansions?
 
+## Possible Directive Interfaces
+
+### Option 1: Qualifier syntax
+```prolog
+:- use_module(library(lists)).          % Both phases (default)
+:- use_module(library(dcg), [runtime]). % Runtime only
+:- use_module(library(macro), [compile]). % Compile only
+```
+
+### Option 2: Separate directives
+```prolog
+:- use_module(library(lists)).          % Both (compat)
+:- compile_with(library(macro)).        % Compile-time only
+:- import_module(library(pure_data)).   % Runtime only
+```
+
+### Option 3: Property syntax
+```prolog
+:- use_module(library(lists)).                    % Both
+:- use_module(library(data)) as runtime_only.     % Runtime only  
+:- use_module(library(macro)) as compile_only.    % Compile only
+```
+
+### Option 4: Nested directive
+```prolog
+:- use_module(library(lists)).          % Both
+:- runtime_only use_module(library(x)). % Runtime only
+:- compile_only use_module(library(y)). % Compile only
+```
+
+### Option 5: JavaScript-inspired names
+```prolog
+:- use_module(library(lists)).          % Both phases (backwards compatible)
+:- require(library(macros)).            % Compile-time only (like Node.js require)
+:- import(library(runtime)).            % Runtime only (like ES6 import)
+```
+
 ## Recommendation
 
-**Use a two-phase approach with familiar syntax:**
+**Use Option 5 (JavaScript-inspired names) with a two-phase approach:**
 
-1. Keep SWI-style `use_module/1` and `use_module/2` as the primary interface
-2. Add `use_package/1` only for explicit compile-time extensions
-3. Make `use_module` automatically load at compile-time IF the module exports term expansions (detected by the compiler)
-4. Use ECLiPSe-style progressive visibility internally
-5. Generate static ESM modules as output
+1. `use_module/1,2` - Loads at both compile-time and runtime (backwards compatible)
+2. `require/1,2` - Compile-time only (for macros/term expansion)
+3. `import/1,2` - Runtime only (for pure runtime dependencies)
 
 This gives you:
-- Familiar syntax for the common case
-- Explicit control when needed (use_package)
-- Automatic handling of term expansion
-- Clean compilation model
-- Flexibility for multiple backends
+- Backwards compatibility by default
+- Clear, distinct names that map to JS concepts
+- No syntactic surprises
+- Each directive does one thing
 
-The key insight is that the compiler can detect which modules provide expansions and handle them specially, removing the burden from users in most cases while still allowing explicit control when needed.
+Example usage:
+```prolog
+:- require(library(macros)).    % "I require this for compilation"
+:- import(library(runtime)).    % "Import this at runtime"
+:- use_module(library(both)).   % "Use this module" (both phases)
+```
+
+Combined with ECLiPSe-style progressive visibility internally and static ESM output, this provides a clean, understandable model that scales from simple to complex use cases.
