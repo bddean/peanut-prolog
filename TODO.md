@@ -1,3 +1,31 @@
+NEXT rework
+
+- use esm modules for importing but a global db for exporting.
+	- the compiler will extract db lookups for *known*, *static*
+		predicates to variable lookups
+		- (so we still need module-closure terms like compiled_host_fn/3 below)
+- Self-hosted compiler. Needs to dynamically load module before compiling
+	it so term_expansion, directives etc work.
+	- dynamically loading works: read a term at a time, asserting to DB.
+		- and then add "dynamic module" to mod registry
+	- multifile predicates from other moduels need an api to dynamically epxand
+		- (multifile & dynamic likely the same under the hood, actually)
+- Module qualification should be done purely with expand term. Compiler
+	not involved. (Reading depended-on pl modules unavoidable to support
+	expand_term at all).
+
+------------------------------------------------------------------------
+
+So the compiler should be more like: Load program dynamically, and then
+compile it.
+
+In particular. Compile + eval a predicate at a time. And then, separately, read the source and compile it.
+(Or I guess other way around. E.g. term_expansion shouldn't apply to self...)
+
+requirements:
+- assertz/1 but not clause/2.
+- a new "dynamic module" type for the runtime. Necessary since we can't add to NS of esm modules.
+
 # Features
 ## TODO module fixups
 - fix special modules like runtime / system / user
