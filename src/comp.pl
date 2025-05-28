@@ -54,11 +54,14 @@ clauses_ir(Clauses, IR) :-
 	maplist(directive_ir, Directives, IRList),
 	args_list(IR, IRList).
 
-clauses_ir(Clauses, defun(generator, Spec, (
-	$.("CALLED_TERM") := Callee,
-	allocate_vars(VarNames),
-	Impls
-))) :-
+clauses_ir(Clauses, (
+	$.(FnName) := fn(generator, (
+		$.("CALLED_TERM") := Callee,
+		allocate_vars(VarNames),
+		Impls
+	)),
+	db_set(Name, Spec, $.(FnName))
+)) :-
 	% Clauses are facts or rules, not directives.
 	( Clauses = [(_:-_)|_] -> true ; Clauses \= [(:- _)|_] ),
 
@@ -147,6 +150,10 @@ compile_node(Backend, N, Out) :-
 
 :- meta_predicate compile_term(2, +, -).
 compile_term_ir(Backend) -->
+  walk_ir([I, I] >> (
+		member(I, [$X, $.(X), $(X, _)]),
+		ensure_sym(X)
+	)),
 	walk_ir(erase_true),
 	walk_ir(loop_to_yield_all),
 	walk_ir(compile_node(Backend)).

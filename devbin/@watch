@@ -1,2 +1,2 @@
 #!/usr/bin/env __run
-npx tsc --watch @packages/@pl-runtime
+npx tsc --watch packages/pl-runtime

@@ -1,3 +1,14 @@
+WIP (related to below): Migrating fn exports to db_get/db_set model.
+	NEXT
+		- write actual db_set/db_get functions in rt
+			- oh, and add module arguments to these...
+		- fix funcall codegen
+		- then you can delete all the complicated stuff about function
+		idents
+
+(Imports still ESM; but add to DB as side effect).
+(Module closures still needed for prefetching static predicates e.g.) 
+~~~
 NEXT rework
 
 - use esm modules for importing but a global db for exporting.

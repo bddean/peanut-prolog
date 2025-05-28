@@ -34,10 +34,31 @@ ir_type(
 	as(foreign_name:ir, local_name:ir)
 ).
 
+% DEPRECATE
 ir_type(defun/3, "Define a named function in module scope", defun(
   type: fn_type_,
 	name: ir,
 	body: ir
+)).
+
+ir_type(
+	fn/2,
+	"Function expression (variadic arguments implicit)",
+	fn(
+		type: fn_type_,
+		body: ir
+	)
+).
+
+ir_type(db_set/3, "Add to the predicate database", db_set(
+	tag_atm: atom,
+	arity_num: number,
+	predicate_fn: ir
+)).
+
+ir_type(db_get/2, "DB lookup", db_get(
+	tag_atm: atom,
+	arity_num: number
 )).
 
 %%%%%% IR instructions related to modules %%%%%%
@@ -98,6 +119,7 @@ walk_kids(G, E0, E) :-
     ).
 
 walk_kids_(G, IR0, IR) :-
+	nonvar(IR0),
 	functor(IR0, Tag, Arity),
 	ir_type(Tag/Arity, _, Type),
 	IR0 =.. [_|Args0],

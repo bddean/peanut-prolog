@@ -41,6 +41,19 @@ js(defun(generator, Ident, Body)) -->
 	Body,
 	"\n}".
 
+js(fn(generator, Body)) -->
+	"function* (...args) { \n",
+		Body,
+	"\n}".
+
+js(db_set(T, N, X)) -->
+	"console.log('@@ db_set', ",
+ js(\T), ", ",
+ js(\N), ", ",
+ X,
+ ");\n".
+
+
 % Function call
 js(funcall(Name, Args)) -->
 	{ length(Args, N) },
