@@ -60,7 +60,7 @@ clauses_ir(Clauses, (
 		allocate_vars(VarNames),
 		Impls
 	)),
-	db_set(Name, Spec, $.(FnName))
+	db_set(Module, Name, Arity, $.(FnName))
 )) :-
 	% Clauses are facts or rules, not directives.
 	( Clauses = [(_:-_)|_] -> true ; Clauses \= [(:- _)|_] ),
@@ -85,7 +85,7 @@ clauses_ir(Clauses, (
 
 
 	% Build the IR
-	Spec = $(Name, Arity),
+	( compile_current_module(Module) -> true ; Module = user ),
 	normalize_and_compile_clauses(Clauses, Impls).
 
 normalize_and_compile_clauses([], nothing).
@@ -95,7 +95,7 @@ normalize_and_compile_clauses([Clause|Rest], (ClauseIR, RestIR)) :-
 	normalize_and_compile_clauses(Rest, RestIR).
 
 compile_clause((Head :- Body), (
-	funcall("unify", [$.("CALLED_TERM"), \Head]) *-> BodyIR
+	funcall(user, "unify", [$.("CALLED_TERM"), \Head]) *-> BodyIR
 )) :-	goal_ir(Body, BodyIR).
 
 var_name_(N, $.(Name)) :- format(string(Name), "~d", [N]).
@@ -132,9 +132,10 @@ goal_ir(_, Cont, Term, (Call *-> Cont)) :-
 
 % Convert a Prolog term to a function call
 % term_call_ir(+Term, -Call)
-term_call_ir(Term, funcall(Name, Args)) :-
+term_call_ir(Term, funcall(Module, Name, Args)) :-
 	Term =.. [Name|Args0],
-	wrap_args(Args0, Args).
+	wrap_args(Args0, Args),
+	( compile_current_module(Module) -> true ; Module = user ).
 
 % Wrap arguments in the IR format
 % wrap_args(+PrologArgs, -WrappedArgs)

@@ -2,62 +2,40 @@
 :- use_module(js_identifier, [js_escape_ident/2]).
 :- use_module(library(gensym), [gensym/2]).
 :- use_module('../comp_context').
+:- use_module('../directives', [compile_current_module/1]).
 
 % Public interface
 js(T, S) :- js(T, S, []).
 
-% Utils
-fun_name(Name/Arity) --> js_atom(Name), "_", js(\Arity).
-
-fun_ident(Name/Arity) -->
-	{
-		fun_name(Name/Arity, FName, []),
-		atom_codes(A, FName),
-		js_escape_ident(A, AIdent),
-		atom_codes(AIdent, Ident),
-
-		% Hack to support not-explicitly-qualified predicates
-		( predicate_is_explicitly_defined(Name, Arity)
-		-> Prefix = ""
-		; Prefix = "$_STARMODS."
-		)
-	},
-	Prefix, Ident.
 
 %%
 %% JavaScript code generation
 %%
 js(file_start) -->
-	"const ", js($.("STARMODS")), " = ", "{};\n",
-	"import { Var, Term, registerModule } from 'pl-runtime';\n".
+	"import { Var, Term, registerModule, db_set, db_get } from 'pl-runtime';\n".
 
-js($(Name, Arity)) --> fun_ident(Name/Arity).
 js(make_term(Name, Args)) --> "new Term(", Name, ",", Args, ")".
 js(arguments) --> "args".
-
-% Generator function
-js(defun(generator, Ident, Body)) -->
-	"function* ", Ident, "(...args) { \n",
-	Body,
-	"\n}".
 
 js(fn(generator, Body)) -->
 	"function* (...args) { \n",
 		Body,
 	"\n}".
 
-js(db_set(T, N, X)) -->
-	"console.log('@@ db_set', ",
- js(\T), ", ",
- js(\N), ", ",
- X,
- ");\n".
+js(db_set(Module, Name, Arity, X)) -->
+	{ 
+		format(string(Key), "~w:~w/~w", [Module, Name, Arity])
+	},
+	"db_set(", js(\Key), ", ", X, ");\n".
 
 
 % Function call
-js(funcall(Name, Args)) -->
-	{ length(Args, N) },
-	fun_ident(Name/N), "(", js_args(Args), ")".
+js(funcall(Module, Name, Args)) -->
+	{ 
+		length(Args, N),
+		format(string(Key), "~w:~w/~w", [Module, Name, N])
+	},
+	"db_get(", js(\Key), ")(", js_args(Args), ")".
 
 js(Name := Value) --> "const ", Name, "=", Value, ";\n".
 
@@ -120,20 +98,10 @@ js($.(X)) -->
 js(declare_module(Name)) -->
 	"registerModule(", js(\Name), ", s => eval(s));\n".
 
-js(import(Path, Specs)) -->
+js(import(Path)) -->
 	{ path_pl_to_js(Path, JsMod) },
-	"import {", js_args(Specs), "} from ", js(\JsMod), ";\n".
+	"import ", js(\JsMod), ";\n".
 
-js(export([])) -->	!, "".
-js(export(Specs)) -->	"export {", js_args(Specs), "};\n".
-
-% TODO: The globalThis trick we use is only approximately correct.
-% Use static analysis across files instead.
-js(import_all(Path)) -->
-	{ path_pl_to_js(Path, JsMod) },
-	{ gensym("mod", Tmp) },
-	"import * as ", js($.(Tmp)), " from ", js(\JsMod), ";\n",
-	"Object.assign(", js($.("STARMODS")), ", ", js($.(Tmp)),");\n".
 
 %%%%%% Helper predicates %%%%%%%
 js_args([]) --> "".

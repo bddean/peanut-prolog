@@ -46,7 +46,13 @@ for test_file in "$tests_dir"/"$test_prefix"*.pl; do
   swipl -l compile.pl --\
 		"$test_file" "$jsfile"
 
-	echo "try { for (const _ of top_0('top')) break; } catch(_) {throw _;}" \
+	# Use module name from file if it has explicit module declaration, otherwise use 'user'
+	if grep -q "^:- module(" "$test_file"; then
+		module_name="$name"
+	else
+		module_name="user"
+	fi
+	echo "try { for (const _ of db_get('${module_name}:top/0')()) break; } catch(_) {throw _;}" \
 		>> "$jsfile"
 
   # Run compiled output via Node.js

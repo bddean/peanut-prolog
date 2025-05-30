@@ -99,6 +99,18 @@ export const registerModule = (name: Atom, evalInModule: (js: string) => any) =>
   moduleEvalFns.set(name, evalInModule);
 }
 
+// Global predicate database for dynamic dispatch
+const predicateDB = new Map<string, Function>();
+
+export const db_set = (key: string, fn: Function) => {
+  predicateDB.set(key, fn);
+}
+
+export const db_get = (key: string): Function | undefined => {
+  return predicateDB.get(key);
+}
+
+
 const SYM_COLON = Symbol.for(":");
 const SYM_USER = Symbol.for("user");
 const predWithMod = (T: Val): [Atom, Val] =>
@@ -121,15 +133,14 @@ export const call_1 = function(T: Val) {
     name = goal.tag;
     args = goal.args;
   } else throw new Error('nyi');
-  const unescaped = `${Symbol.keyFor(name)}_${args.length}`;
-  const ident = unescaped.replace(/(^[0-9])|[^A-Za-z0-9_]/g, char => {
-    const code = char.charCodeAt(0);
-    const zeroes = "0000";
-    const hex = code.toString(16);
-    const padded = zeroes.substring(0, 4 - hex.length) + hex;
-    return "$" + padded;
-  });
-  const fn = moduleEvalFns.get(mod)!(ident);
+  
+  const modName = Symbol.keyFor(mod) || "user";
+  const predName = Symbol.keyFor(name);
+  const key = `${modName}:${predName}/${args.length}`;
+  const fn = db_get(key);
+  if (!fn) {
+    throw new Error(`Predicate not found: ${key}`);
+  }
   return fn(...args);
 }
 
@@ -172,3 +183,14 @@ export const $003D$002E$002E_2 = function*(T: Val, List: Val) {
 	}
   throw new Error('uninst');
 }
+
+// Initialize runtime predicates in the database
+const true_0 = function*() { yield; };
+
+db_set("user:unify/2", unify_2);
+db_set("user:writeln/1", writeln_1);
+db_set("user:fail/0", fail_0);
+db_set("user:call/1", call_1);
+db_set("user:throw/1", throw_1);
+db_set("user:=../2", $003D$002E$002E_2);
+db_set("user:true/0", true_0);

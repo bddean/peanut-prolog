@@ -1,3 +1,4 @@
+:- module(user, []).
 :- use_module("pl-runtime").
 
 % Basic Prolog predicates

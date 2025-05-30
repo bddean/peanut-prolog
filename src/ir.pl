@@ -10,7 +10,7 @@ ir_type('->'/2         , "if statement"         , (condition_expr:ir -> body:ir)
 ir_type(':='/2         , "Init a const"         , name:ir := value:ir).
 ir_type('yield_all'/1  , "yield multiple values", yield_all(generator:ir)).
 ir_type(yield/0        , "yield once"           , yield).
-ir_type(funcall/2      , "Call a function"      , funcall(name:atom, args: maplist(ir))).
+ir_type(funcall/3      , "Call a function"      , funcall(module:atom, name:atom, args: maplist(ir))).
 ir_type(':'/2          , "Labelled block"       , (ident:ir) : (block:ir)).
 ir_type(break/1        , "Exit labelled block"  , break(label:ir)).
 ir_type(allocate_vars/1, "Make local logic vars", allocate_vars(names:maplist(ir))).
@@ -25,7 +25,6 @@ an expression that evaluates to a host-language list.",
 ir_type(arguments/0, "Arguments list for current function", arguments).
 
 ir_type('$'/1  , "atom identifier", $(name:atom)).
-ir_type('$'/2  , "predicate ident", $(name:atom, arity:number)).
 ir_type('$.'/1 , "Compiler-internal atom identifier" , $.(_:ir)).
 
 ir_type(
@@ -34,12 +33,6 @@ ir_type(
 	as(foreign_name:ir, local_name:ir)
 ).
 
-% DEPRECATE
-ir_type(defun/3, "Define a named function in module scope", defun(
-  type: fn_type_,
-	name: ir,
-	body: ir
-)).
 
 ir_type(
 	fn/2,
@@ -50,9 +43,10 @@ ir_type(
 	)
 ).
 
-ir_type(db_set/3, "Add to the predicate database", db_set(
-	tag_atm: atom,
-	arity_num: number,
+ir_type(db_set/4, "Add to the predicate database", db_set(
+	module: atom,
+	name: atom,
+	arity: number,
 	predicate_fn: ir
 )).
 
@@ -69,24 +63,17 @@ ir_type(
 ).
 
 ir_type(
-	import/2,
+	import/1,
 	"Import statement compiled from a `:- use_module(...) directive.
 
 One minor gotcha: The path argument isn't transformed to
 allow backends to allow each backend to integrate better
 with its host system.
 ",
-	import(path:term, predicate_specs:maplist(ir))
+	import(path:term)
 ).
-
-ir_type(import_all/1, "import *", import_all(path:term)).
 ir_type(file_start, "Host-specific file_prelude", file_start).
 
-ir_type(
-	export/1,
-	"See import/2",
-	export(predicate_specs:maplist(ir))
-).
 
 % TODO We're missing a few types here -- double check backend code.
 % TODO Integrate type checks into our other compiler tests.
