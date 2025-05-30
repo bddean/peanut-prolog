@@ -1,13 +1,18 @@
-WIP (related to below): Migrating fn exports to db_get/db_set model.
-	NEXT
-		- write actual db_set/db_get functions in rt
-			- oh, and add module arguments to these...
-		- fix funcall codegen
-		- then you can delete all the complicated stuff about function
-		idents
+## Next Major Steps
 
-(Imports still ESM; but add to DB as side effect).
-(Module closures still needed for prefetching static predicates e.g.) 
+1. **Module resolution during compilation**: Change compiler to load Prolog files into runtime first, let term_expansion work, then compile the result. This will properly resolve module:predicate/arity forms at compile-time instead of guessing at runtime.
+
+2. **Fix built-in predicate resolution**: Currently calls from within modules try to resolve all predicates to that module (e.g. hello:writeln/1). Need proper fallback to user: for built-ins.
+
+3. **Self-hosting**: Once module resolution works properly, enable self-hosted compilation.
+
+## Recently Completed
+
+✅ Database-based module system (db_set/db_get) 
+✅ Removed function identifier complexity
+✅ Simplified import/export (no predicate-level tracking)
+✅ Module-aware compilation with proper key format
+
 ~~~
 NEXT rework
 
