@@ -1,3 +1,7 @@
+New plan: make modules a user-level library using term_expansion.
+
+fast track self-hosting.
+
 ## Next Major Steps
 
 1. **Module resolution during compilation**: Change compiler to load Prolog files into runtime first, let term_expansion work, then compile the result. This will properly resolve module:predicate/arity forms at compile-time instead of guessing at runtime.
