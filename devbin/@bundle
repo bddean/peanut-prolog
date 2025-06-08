@@ -3,14 +3,4 @@
 fout="$(mktemp)"
 >&2 swipl -l compile.pl -- "$1" $fout
 
-cat runtime.js $fout
-echo
-
-# Hack: Catch errors some exit code is 0. This simplifies the test
-# harness.
-echo "
-try {
-  for (const _ of main_0()) break;
-} catch(e) {
-	console.error(e);
-}"
+cat $fout
