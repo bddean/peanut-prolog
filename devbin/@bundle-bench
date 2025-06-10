@@ -3,11 +3,10 @@
 fout="$(mktemp)"
 >&2 swipl -l compile.pl -- "$1" $fout
 
-cat runtime.js $fout
+cat $fout
 echo
-
 echo "
 const start = performance.now();
-for (const _ of main_0()) break;
+for (const _ of db_get('user:main/0')()) break;
 console.log('Elapsed: ' + ((performance.now() - start) / 1000) + ' seconds');
 "

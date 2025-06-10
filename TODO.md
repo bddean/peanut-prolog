@@ -1,6 +1,6 @@
 NEXT
-	- directives to exec immediately at rt.
 	- remove compile_current_module; instead compiler should extract modules from :/2 terms.
+	- dynamic preds
 
 New plan: make modules a user-level library using term_expansion.
 

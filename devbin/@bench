@@ -1,15 +1,15 @@
 #!/usr/bin/env __run
-tmpdir=$(mktemp -d)
-echo $tmpdir
+mkdir -p ./test/var/bench/
+rm ./test/var/bench/*
 for f in ./test/bench/*; do
 	echo "======= $f ======="
 	name="$(basename "$f")"
-	@bundle-bench $f > $tmpdir/$name.js
+	@bundle-bench $f > ./test/var/bench/$name.js
 	echo "---- Peanut (node) ----"
-	node $tmpdir/$name.js
+	node ./test/var/bench/$name.js
 	echo
 	#echo  "---- Peanut (bun) ----"
-	#bun $tmpdir/$name.js
+	#bun ./test/var/bench/$name.js
 	#echo
 	echo "---- SWI ----"
 	swipl -l "$f" -g 'time(main)' -g halt
