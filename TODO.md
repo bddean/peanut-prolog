@@ -1,6 +1,6 @@
 NEXT
-	- remove compile_current_module; instead compiler should extract modules from :/2 terms.
 	- dynamic preds
+	- remove compile_current_module; instead compiler should extract modules from :/2 terms.
 
 New plan: make modules a user-level library using term_expansion.
 
