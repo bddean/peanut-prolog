@@ -1,21 +1,10 @@
+NEXT
+	- directives to exec immediately at rt.
+	- remove compile_current_module; instead compiler should extract modules from :/2 terms.
+
 New plan: make modules a user-level library using term_expansion.
 
 fast track self-hosting.
-
-## Next Major Steps
-
-1. **Module resolution during compilation**: Change compiler to load Prolog files into runtime first, let term_expansion work, then compile the result. This will properly resolve module:predicate/arity forms at compile-time instead of guessing at runtime.
-
-2. **Fix built-in predicate resolution**: Currently calls from within modules try to resolve all predicates to that module (e.g. hello:writeln/1). Need proper fallback to user: for built-ins.
-
-3. **Self-hosting**: Once module resolution works properly, enable self-hosted compilation.
-
-## Recently Completed
-
-✅ Database-based module system (db_set/db_get) 
-✅ Removed function identifier complexity
-✅ Simplified import/export (no predicate-level tracking)
-✅ Module-aware compilation with proper key format
 
 ~~~
 NEXT rework

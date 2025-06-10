@@ -5,4 +5,4 @@ message :-
   )
 	;	writeln("should also not see this").
 
-top :- message, fail ; true.
+:- message, fail ; true.

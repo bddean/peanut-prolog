@@ -35,10 +35,9 @@ for test_file in "$tests_dir"/"$test_prefix"*.pl; do
   act_err="$tmpdir/${name}.act_err"
 
   # Run expected output via SWI-Prolog
-  swipl -q -f "$test_file"\
-		-g "current_predicate($name:top/0) -> $name:top ; user:top." \
-		-g halt                                                     \
-		1>"$exp_out" 2>"$exp_err"                                   \
+  swipl -q -f "$test_file"   \
+		-g halt                  \
+		1>"$exp_out" 2>"$exp_err"\
   	|| true
 
   # Compile to JavaScript
@@ -52,8 +51,6 @@ for test_file in "$tests_dir"/"$test_prefix"*.pl; do
 	else
 		module_name="user"
 	fi
-	echo "try { for (const _ of db_get('${module_name}:top/0')()) break; } catch(_) {throw _;}" \
-		>> "$jsfile"
 
   # Run compiled output via Node.js
   node "$jsfile" 1>"$act_out" 2>"$act_err" || true

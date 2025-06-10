@@ -7,8 +7,10 @@ g("haf gon to bed -").
 g("i stay up late.").
 g("i lik the bred.").
 
-top :-
+loop :-
 	g(X),
 	writeln(X),
 	fail.
-main.
+loop.
+
+:- loop.

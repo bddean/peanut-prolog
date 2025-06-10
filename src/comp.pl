@@ -2,7 +2,6 @@
 		compile_terms/3,
     clauses_ir/2,
     goal_ir/2,
-    term_call_ir/2,
 		terms_ir/2
 ]).
 :- use_module(library(debug), [assertion/1]).
@@ -13,6 +12,7 @@
 :- use_module('./directives').
 :- use_module('./helpers').
 :- use_module('./ir', [walk_ir/3]).
+:- use_module(goal_ir).
 
 % clauses_grouped groups a list of clauses (H :- B terms) into sublists
 % grouped by head name/arity.
@@ -85,7 +85,7 @@ clauses_ir(Clauses, (
 
 
 	% Build the IR
-	( compile_current_module(Module) -> true ; Module = user ),
+	compile_current_module(Module),
 	normalize_and_compile_clauses(Clauses, Impls).
 
 normalize_and_compile_clauses([], nothing).
@@ -105,42 +105,6 @@ var_name_(N, $.(Name)) :- format(string(Name), "~d", [N]).
 normalize_clause((:- B), (:- B)) :- !.
 normalize_clause((H :- B), (H :- B)) :- !.
 normalize_clause(Fact, (Fact :- true)) :- !.
-
-% Convert Prolog statements to IR
-% goal_ir(+Statement, -IR)
-goal_ir(G, IR) :- goal_ir(function, yield, G, IR).
-
-goal_ir(Scope, Cont, (A0, B0), A) :-
-	!,
-	goal_ir(Scope, Cont, B0, B),
-	goal_ir(Scope, B, A0, A).
-
-goal_ir(Scope, Cont, (A0 ; B0), (A , B)) :-
-	!,
-	maplist(
-		goal_ir(Scope, Cont),
-		[A0, B0],
-		[A, B]
-	).
-
-goal_ir(function, Cont, !, (Cont, return)) :- !.
-goal_ir(block(Lbl), Cont, !, (Cont, break($Lbl))) :- !.
-
-% TODO convert to -> in second pass
-goal_ir(_, Cont, Term, (Call *-> Cont)) :-
-	term_call_ir(Term, Call).
-
-% Convert a Prolog term to a function call
-% term_call_ir(+Term, -Call)
-term_call_ir(Term, funcall(Module, Name, Args)) :-
-	Term =.. [Name|Args0],
-	wrap_args(Args0, Args),
-	( compile_current_module(Module) -> true ; Module = user ).
-
-% Wrap arguments in the IR format
-% wrap_args(+PrologArgs, -WrappedArgs)
-wrap_args(Ts, As) :- maplist(wrap_args__escape_, Ts, As).
-wrap_args__escape_(X, \X).
 
 % Helper: identity transformation for already compiled strings.
 compile_node(_, N, N) :- string(N), !.
@@ -172,8 +136,9 @@ codes_to_string(Codes, String) :-
 	string_codes(String, CodesList).
 
 compile_file(Backend, FName, Out) :-
-	% TODO do htis cleaner-ly.
-	read_file_to_terms("./src/prelude.pl", Terms, [tail(FileTerms)]),
+	%% NOTE: This may be a self-referencing import. But apparently,
+	%% that's no problem.
+	Terms=[(:- ensure_loaded(library("prelude")))|FileTerms],
 	read_file_to_terms(FName, FileTerms, []),
 	compile_terms(Backend, Terms, Out).
 

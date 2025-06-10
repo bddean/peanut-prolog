@@ -7,4 +7,4 @@ message :-
 	; writeln("AND ALSO to see this")
 	).
 
-top :- message, fail ; true.
+:- message, fail ; true.

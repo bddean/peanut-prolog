@@ -1,1 +1,1 @@
-top :-	writeln(hello).
+:- writeln(hello).

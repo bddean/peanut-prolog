@@ -5,3 +5,4 @@ message :-
 	; writeln("expect NOT to see this").
 
 top :- message ; true.
+:- top.

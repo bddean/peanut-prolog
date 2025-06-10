@@ -1,5 +1,4 @@
-:- module(user, []).
-:- use_module("pl-runtime").
+:- ensure_loaded("pl-runtime").
 
 % Basic Prolog predicates
 A = A.

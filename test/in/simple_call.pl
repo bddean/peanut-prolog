@@ -1,3 +1,3 @@
 hi :- writeln("hi").
 
-top :- call(user:hi).
+:- call(user:hi).
