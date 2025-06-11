@@ -110,6 +110,38 @@ export const db_get = (key: string): Function | undefined => {
   return predicateDB.get(key);
 }
 
+const kv_db = new Map<symbol|string|number|bigint, Val>();
+
+// TODO: {n,}b_deleteval and getval.
+const nb_linkval = function*(K: Val, V: Val) {
+  K = deref(K);
+  switch(typeof K) {
+    default:
+      throw new Error("Invalid key type");
+    case "string":
+    case "number":
+    case "bigint":
+    case "symbol":
+      break;
+  }
+  V = deref(V);
+  kv_db.set(K, V);
+  yield;
+}
+db_set("user:nb_linkval/2", nb_linkval);
+
+const b_linkval = function*(K: Val, V: Val) {
+  K = deref(K);
+  const KTyped = K as symbol|string|number|bigint;
+  const prev = kv_db.get(KTyped);
+  try {
+    yield* nb_linkval(K, V);
+  } finally {
+    if (prev !== undefined) kv_db.set(KTyped, prev!);
+    else kv_db.delete(KTyped);
+  }
+}
+db_set("user:b_linkval/2", b_linkval);
 
 const SYM_COLON = Symbol.for(":");
 const SYM_USER = Symbol.for("user");
@@ -133,7 +165,7 @@ export const call_1 = function(T: Val) {
     name = goal.tag;
     args = goal.args;
   } else throw new Error('nyi');
-  
+
   const modName = Symbol.keyFor(mod) || "user";
   const predName = Symbol.keyFor(name);
   const key = `${modName}:${predName}/${args.length}`;

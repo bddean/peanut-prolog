@@ -1,4 +1,6 @@
 NEXT
+	- set_val / get_val
+		- in progress. NEXT - try to unify with predicate db, but think about this...
 	- dynamic preds
 	- remove compile_current_module; instead compiler should extract modules from :/2 terms.
 
