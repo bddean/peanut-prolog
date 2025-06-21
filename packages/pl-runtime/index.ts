@@ -26,18 +26,18 @@ export class Var {
 	}
 }
 
-export class Term {
+export class CompoundTerm {
   constructor(
     public readonly tag: Atom,
     public readonly args: Val[],
   ) {}
 
-  copy(vars = new Map<Var, Var>()): Term {
-    return new Term(
+  copy(vars = new Map<Var, Var>()): CompoundTerm {
+    return new CompoundTerm(
       this.tag,
       this.args.map(A => {
         const X = deref(A);
-        if (X instanceof Term) return X.copy(vars);
+        if (X instanceof CompoundTerm) return X.copy(vars);
         if (!(X instanceof Var)) return X;
         if (!vars.has(X)) vars.set(X, new Var());
         return vars.get(X)!;
@@ -54,7 +54,7 @@ export class Term {
 type UnboundVar = Var & { ref: UnboundSym };
 type Atomic = Atom | string | number | null | bigint; // TODO...
 type Atom = symbol;
-type Inst = Term | Atomic;
+type Inst = CompoundTerm | Atomic;
 type Val = Var | Inst;
 
 function deref(v: Val): Inst | UnboundVar {
@@ -67,7 +67,7 @@ export function* unify_2(A: Val, B: Val): Choices {
   if (A === B) return yield;
   if (A instanceof Var) return yield* A.set(B);
   else if (B instanceof Var) return yield* B.set(A);
-  else if (A instanceof Term && B instanceof Term) {
+  else if (A instanceof CompoundTerm && B instanceof CompoundTerm) {
     if (
       A.tag !== B.tag
       || A.args.length !== B.args.length
@@ -112,6 +112,62 @@ export const db_get = (key: string): Function | undefined => {
 
 const kv_db = new Map<symbol|string|number|bigint, Val>();
 
+const var_1 = function*(V: Val) {
+  V = deref(V);
+  if (V instanceof Var) yield;
+}
+db_set("user:var/1" ,var_1);
+
+const get_arg$_3 = function*(Index: Val, T: Val, Element: Val) {
+	Index = deref(Index);
+	T = deref(T);
+	Element = deref(Element);
+	if (! (T instanceof CompoundTerm) || ! (typeof Index === "number")) throw new Error('bad type');
+	yield* unify_2(T.args[Index], Element);
+}
+db_set("user:get_arg$/3", get_arg$_3);
+
+const functor_3 = function*(T: Val, Name: Val, Arity: Val) {
+	T = deref(T);
+	Name = deref(Name);
+	Arity = deref(Arity);
+	if (! (T instanceof CompoundTerm)) throw 'typ';
+	for (const _ of unify_2(Name, T.tag))
+		yield* unify_2(Arity, T.args.length);
+}
+db_set("user:functor/3", functor_3);
+
+function* succ_2(X: Val, Y: Val) {
+  X = deref(X); Y = deref(Y);
+  const tx = typeof X;
+  const ty = typeof Y;
+  // TODO or bigint...?
+  if (tx === ty && tx === "number") {
+    if ((X as number) + 1 === Y) yield;
+  } else if (tx === "number") {
+    yield* unify_2(Y, (X as number) + 1);
+  } else if (ty === "number") {
+    yield* unify_2(X, (Y as number) - 1);
+  } else throw 'uninst';
+}
+db_set("user:succ/2", succ_2);
+
+function* lt_2(X: Val, Y: Val) {
+  X = deref(X); Y = deref(Y);
+  if (typeof X !== "number" || typeof Y !== "number") throw 'typs';
+  if(X < Y) yield;
+}
+db_set("user:</2", lt_2);
+
+function* lte_2(X: Val, Y: Val) {
+  X = deref(X); Y = deref(Y);
+  if (typeof X !== "number" || typeof Y !== "number") throw 'typs';
+  if(X <= Y) yield;
+}
+db_set("user:=</2", lte_2);
+
+// NEXT: Between?
+
 // TODO: {n,}b_deleteval and getval.
 const nb_linkval = function*(K: Val, V: Val) {
   K = deref(K);
@@ -146,7 +202,7 @@ db_set("user:b_linkval/2", b_linkval);
 const SYM_COLON = Symbol.for(":");
 const SYM_USER = Symbol.for("user");
 const predWithMod = (T: Val): [Atom, Val] =>
-  T instanceof Term && T.tag === SYM_COLON && T.args.length === 2
+  T instanceof CompoundTerm && T.tag === SYM_COLON && T.args.length === 2
     ? T.args.map(deref) as [Atom, Val]
     : [SYM_USER, T];
 
@@ -161,7 +217,7 @@ export const call_1 = function(T: Val) {
   if (typeof goal === "symbol") { // atom
     name = goal;
     args = [];
-  } else if (goal instanceof Term) {
+  } else if (goal instanceof CompoundTerm) {
     name = goal.tag;
     args = goal.args;
   } else throw new Error('nyi');
@@ -187,23 +243,23 @@ const SYM_LIST = Symbol.for("[|]");
 export const $003D$002E$002E_2 = function*(T: Val, List: Val) {
 	T = deref(T); List=deref(List);
 	if (typeof T === "symbol") {
-	  return yield* unify_2(List, new Term(SYM_LIST, [T, SYM_LIST]));
+	  return yield* unify_2(List, new CompoundTerm(SYM_LIST, [T, SYM_LIST]));
 	}
 	if (! (T instanceof Var)) {
-    if (! (T instanceof Term)) throw new Error('bad type');
+    if (! (T instanceof CompoundTerm)) throw new Error('bad type');
     const argsLs = T.args.reduceRight(
-      (acc, Arg) => new Term(SYM_LIST, [Arg, acc]),
+      (acc, Arg) => new CompoundTerm(SYM_LIST, [Arg, acc]),
       SYM_LIST,
     );
-    const ConstructedList = new Term(SYM_LIST, [T.tag, argsLs]);
+    const ConstructedList = new CompoundTerm(SYM_LIST, [T.tag, argsLs]);
     return yield* unify_2(ConstructedList, List);
 	}
-	if (List instanceof Term) {
+	if (List instanceof CompoundTerm) {
 	  let [tag, argsLs] = List.args.map(deref) as [Val, Val];
 	  if (typeof tag !== "symbol") throw new Error('bad type ' + typeof tag);
 	  let args: Val[] = [];
 	  while (argsLs !== SYM_LIST) {
-	    const t = deref(argsLs) as Term;
+	    const t = deref(argsLs) as CompoundTerm;
 	    if (t instanceof Var) throw new Error('uninst');
 	  	args.push(t.args[0]);
 	    argsLs = t.args[1];
@@ -211,7 +267,7 @@ export const $003D$002E$002E_2 = function*(T: Val, List: Val) {
 	  if (args.length === 0) {
 	    return yield* unify_2(T, tag);
 	  }
-	  return yield* unify_2(T, new Term(tag, args));
+	  return yield* unify_2(T, new CompoundTerm(tag, args));
 	}
   throw new Error('uninst');
 }

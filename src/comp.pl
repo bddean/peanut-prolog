@@ -1,16 +1,16 @@
 :- module(comp, [
-		compile_terms/3,
-    clauses_ir/2,
-    goal_ir/2,
-		terms_ir/2
+	compile_terms/3,
+	clauses_ir/2,
+	goal_ir/2,
+	terms_ir/2
 ]).
 :- use_module(library(debug), [assertion/1]).
 :- use_module(library(readutil), [read_file_to_terms/3]).
 :- use_module(library(gensym), [gensym/2]).
-:- use_module('./optimizations').
-:- use_module('./directives').
-:- use_module('./helpers').
-:- use_module('./ir', [walk_ir/3]).
+:- use_module(optimizations).
+:- use_module(directives).
+:- use_module(helpers, [args_list/2]).
+:- use_module(ir, [walk_ir/3]).
 :- use_module(goal_ir).
 
 % clauses_grouped groups a list of clauses (H :- B terms) into sublists

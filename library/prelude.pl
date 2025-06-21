@@ -3,9 +3,33 @@
 % Basic Prolog predicates
 A = A.
 
+nonvar(X) :- \+ var(X).
+X \= Y :- \+ (X = Y).
+
+X > Y :- Y < X.
+X >= Y :- Y =< X.
+
+between(Low, High, X) :-
+	nonvar(X),
+	!,
+	Low =< X, X =< High.
+between(X, High, X) :- X =< High.
+between(Low, High, X) :-
+	Low < High,
+	succ(Low, LowN),
+	between(LowN, High, X).
+
+arg(I, T, E) :-
+	functor(T, _, Arity),
+	between(1, Arity, I),
+	succ(J, I),
+	'get_arg$'(J, T, E).
+
 %%% List operations %%%
 member(X, [X|_]).
 member(X, [_|Tail]) :- member(X, Tail).
+
+memberchk(X, L) :- member(X, L), !.
 
 append([], L, L).
 append([H|T], L, [H|Result]) :- append(T, L, Result).
@@ -30,3 +54,7 @@ call(G, A, B, C, D)                :- apply(G, [A, B, C, D]).
 call(G, A, B, C)                   :- apply(G, [A, B, C]).
 call(G, A, B)                      :- apply(G, [A, B]).
 call(G, A)                         :- apply(G, [A]).
+
+\+ G :- call(G), !, fail.
+\+ _.
+
