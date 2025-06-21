@@ -1,7 +1,6 @@
 :- module(js, [js/3, js/2]).
 :- use_module(js_identifier, [js_escape_ident/2]).
 :- use_module(library(gensym), [gensym/2]).
-:- use_module('../comp_context').
 :- use_module('../directives', [compile_current_module/1]).
 
 % Public interface
