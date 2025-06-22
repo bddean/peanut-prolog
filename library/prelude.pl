@@ -3,6 +3,8 @@
 :- ensure_loaded(library(native/terms)).
 :- ensure_loaded(library(native/math)).
 
+:- ensure_loaded(library(lists)).
+
 % Basic Prolog predicates
 A = A.
 
@@ -26,15 +28,6 @@ arg(I, T, E) :-
 	between(1, Arity, I),
 	succ(J, I),
 	'get_arg$'(J, T, E).
-
-%%% List operations %%%
-member(X, [X|_]).
-member(X, [_|Tail]) :- member(X, Tail).
-
-memberchk(X, L) :- member(X, L), !.
-
-append([], L, L).
-append([H|T], L, [H|Result]) :- append(T, L, Result).
 
 % TODO meta_predicate decl...
 apply(G0, Xs1) :-
