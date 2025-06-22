@@ -1,4 +1,7 @@
 NEXT
+	[.] refactor so we have xxx.ts in library and can import natually from there... 
+
+NEXT
 	- set_val / get_val
 		- in progress. NEXT - try to unify with predicate db, but think about this...
 	- dynamic preds

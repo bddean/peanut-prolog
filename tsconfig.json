@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2019",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "./packages/pl-library/dist/",
+    "rootDir": "./library/",
+    "skipLibCheck": true,
+    "types": [],
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["./library/**/*.ts"],
+}

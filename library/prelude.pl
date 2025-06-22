@@ -1,9 +1,11 @@
 :- ensure_loaded("pl-runtime").
+:- ensure_loaded(library(native/types)).
+:- ensure_loaded(library(native/terms)).
+:- ensure_loaded(library(native/math)).
 
 % Basic Prolog predicates
 A = A.
 
-nonvar(X) :- \+ var(X).
 X \= Y :- \+ (X = Y).
 
 X > Y :- Y < X.

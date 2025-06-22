@@ -1,11 +1,15 @@
 #!/usr/bin/env __run
 
-cd ./library
-find . -name '*.pl' | while read in_file
-do
-	dir="$(dirname "$in_file")"
-	name="$(basename -s .pl "$in_file")"
-	out_file=../packages/pl-library/dist/"$dir"/"$name".js
-	mkdir -p "$(dirname "$out_file")"
-	swipl -l ../compile.pl -- "$in_file" "$out_file"
-done
+(
+	cd ./library
+	find . -name '*.pl' | while read in_file
+	do
+		dir="$(dirname "$in_file")"
+		name="$(basename -s .pl "$in_file")"
+		out_file=../packages/pl-library/dist/"$dir"/"$name".js
+		mkdir -p "$(dirname "$out_file")"
+		swipl -l ../compile.pl -- "$in_file" "$out_file"
+	done
+)
+
+npx tsc --build . # Builds typescript portion of lib
