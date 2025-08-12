@@ -33,3 +33,22 @@ function* lte_2(X: Val, Y: Val) {
   if(X <= Y) yield;
 }
 db_set("user:=</2", lte_2);
+
+function* $is_op_4(Op: Val, R: Val, A: Val, B: Val) {
+	Op = deref(Op);
+	if (typeof Op !== 'symbol') throw new Error(`Op must be atom, got ${Op}`);
+	A = deref(A);
+	B = deref(B);
+	// TODO: bigints??
+	if (typeof A !== "number") throw new Error("Wanted number");
+	if (typeof B !== "number") throw new Error("Wanted number");
+	switch(Op) {
+	  default: throw new Error(`Unrecognized op: ${Symbol.keyFor(Op)}`);
+	  case Symbol.for("+"): yield* unify_2(R, A + B);
+	  case Symbol.for("-"): yield* unify_2(R, A - B);
+	  case Symbol.for("*"): yield* unify_2(R, A * B);
+	  case Symbol.for("/"): yield* unify_2(R, A / B);
+	}
+}
+db_set("$is_op/3", $is_op_4);
+
