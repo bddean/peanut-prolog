@@ -7,6 +7,7 @@ self-hosting checklist:
 	[/] :- use_module(library(gensym), [gensym/2]).
 	[/] arg/3
 	[ ] ->/2 (probably need to replace call with generator-style for this...)
+		- could also just replace in src pretty easily to get to self-hosting faster.
 		- wait this is easy... i can just do comptime only for now.
 			- or replace with a cond or if_ predicate
 			- (you DO need ancestral cuts to implement rt version b/c u need to cut parent ;/2).
