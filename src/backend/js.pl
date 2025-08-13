@@ -22,7 +22,7 @@ js(fn(generator, Body)) -->
 	"\n}".
 
 js(db_set(Module, Name, Arity, X)) -->
-	{ 
+	{
 		format(string(Key), "~w:~w/~w", [Module, Name, Arity])
 	},
 	"db_set(", js(\Key), ", ", X, ");\n".
@@ -30,7 +30,7 @@ js(db_set(Module, Name, Arity, X)) -->
 
 % Function call
 js(funcall(Module, Name, Args)) -->
-	{ 
+	{
 		length(Args, N),
 		format(string(Key), "~w:~w/~w", [Module, Name, N])
 	},

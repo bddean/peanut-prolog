@@ -18,3 +18,9 @@ const nonvar_1 = function*(NV: Val) {
 }
 db_set("user:nonvar/1", nonvar_1);
 
+const number_1 = function*(N: Val) {
+  N = deref(N);
+  const t = typeof N;
+  if (t === "number" || t === "bigint") yield;
+}
+db_set("user:number/1", number_1);

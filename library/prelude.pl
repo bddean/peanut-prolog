@@ -1,9 +1,9 @@
 :- ensure_loaded("pl-runtime").
 :- ensure_loaded(library(native/types)).
 :- ensure_loaded(library(native/terms)).
-:- ensure_loaded(library(native/math)).
 
 :- ensure_loaded(library(lists)).
+:- ensure_loaded(library(math)).
 
 % Basic Prolog predicates
 A = A.
