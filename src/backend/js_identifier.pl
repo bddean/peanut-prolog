@@ -29,6 +29,7 @@ pair([])     --> [].
 pair([C|Cs]) --> pair_char(first, C),   pair_tail(Cs).
 
 pair_tail([])     --> [].
+
 pair_tail([C|Cs]) --> pair_char(rest,  C), pair_tail(Cs).
 
 /*------------------------------------------------------------------*

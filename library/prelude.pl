@@ -52,4 +52,3 @@ call(G, A)                         :- apply(G, [A]).
 
 \+ G :- call(G), !, fail.
 \+ _.
-

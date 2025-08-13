@@ -1,12 +1,15 @@
 BUG: Seems like we forget to numbrervars for :- declrations.
 
 self-hosting checklist:
-	[ ] is/2: <<, +
+	[/] maplist/n [TODO - TEST!]
+	[/] is/2: <<, +
 	[ ] :- use_module(library(readutil), [read_file_to_terms/3]).
 	[/] :- use_module(library(gensym), [gensym/2]).
 	[/] arg/3
-	[ ] maplist/n
 	[ ] ->/2 (probably need to replace call with generator-style for this...)
+		- wait this is easy... i can just do comptime only for now.
+			- or replace with a cond or if_ predicate
+			- (you DO need ancestral cuts to implement rt version b/c u need to cut parent ;/2).
 		- also tempted to break compat with swi so cut behavior is simpler...
 		- WAIT A MINUTE -- you can use "parent cut" as an effect, right??
 			- like, maybe cut is the return value...
@@ -18,9 +21,9 @@ self-hosting checklist:
 	[/] numlist/3
 	[/] functor/3 (still need to test...)
 	[/] memberchk, member
-	[ ] format/3 (but only for var_name_...)
-		- format(string(Message), "Failed to compile clauses: ~w", [X])
-	[ ] string/1 var/1 and other value typecheckers
+	[ ] format/3 (only some cases)
+		- e.g. format(string(Message), "Failed to compile clauses: ~w", [X])
+	[ ] string/1 var/1 and other value typecheckers (types.ts)
 	[/] throw
 	[	] domain_error(rule_or_directive, Message)
 	[ ] phrase/2 (both list concatenation and for calling dcgs)
