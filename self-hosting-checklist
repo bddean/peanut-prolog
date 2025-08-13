@@ -1,0 +1,27 @@
+self-hosting checklist:
+	[ ] is/2: <<, +
+	[ ] :- use_module(library(readutil), [read_file_to_terms/3]).
+	[/] :- use_module(library(gensym), [gensym/2]).
+	[/] arg/3
+	[ ] maplist/n
+	[ ] ->/2 (probably need to replace call with generator-style for this...)
+		- also tempted to break compat with swi so cut behavior is simpler...
+		- WAIT A MINUTE -- you can use "parent cut" as an effect, right??
+			- like, maybe cut is the return value...
+		- yeah ok the key insight is actually that only cuts
+			that bubble up as *returns* should be handled here.
+			- so that means callee changes are minimal
+	[/] \=
+	[ ] numbervars/3
+	[/] numlist/3
+	[/] functor/3 (still need to test...)
+	[/] memberchk, member
+	[ ] format/3 (but only for var_name_...)
+		- format(string(Message), "Failed to compile clauses: ~w", [X])
+	[ ] string/1 var/1 and other value typecheckers
+	[/] throw
+	[	] domain_error(rule_or_directive, Message)
+	[ ] phrase/2 (both list concatenation and for calling dcgs)
+	[ ] string_codes/2
+	[ ] atomics_to_string/2
+	[ ] atom_string/2
