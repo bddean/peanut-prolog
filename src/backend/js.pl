@@ -11,9 +11,9 @@ js(T, S) :- js(T, S, []).
 %% JavaScript code generation
 %%
 js(file_start) -->
-	"import { Var, CompoundTerm, registerModule, db_set, db_get } from 'pl-runtime';\n".
+	"import { Var, makeTerm, registerModule, db_set, db_get } from 'pl-runtime';\n".
 
-js(make_term(Name, Args)) --> "new CompoundTerm(", Name, ",", Args, ")".
+js(make_term(Name, Args)) --> "makeTerm(", Name, ",", Args, ")".
 js(arguments) --> "args".
 
 js(fn(generator, Body)) -->
@@ -80,7 +80,7 @@ js(\Term) -->
 	{ compound(Term), \+ Term = '$VAR'(_) },
 	{ functor(Term, Functor, _) },
 	{ Term =.. [Functor|Args] },
-	"new CompoundTerm(", js(\Functor), ", [", js_term_args(Args), "])".
+	"makeTerm(", js(\Functor), ", [", js_term_args(Args), "])".
 
 % Variables and literals
 % $ operator is for JS identifiers (variable names)

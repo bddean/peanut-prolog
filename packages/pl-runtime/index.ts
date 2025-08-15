@@ -26,18 +26,51 @@ export class Var {
 	}
 }
 
-export class CompoundTerm {
+export const ArrayTag = Symbol.for("#");
+
+export type CompoundTerm = Val[] | GenericCompoundTerm;
+
+export const makeTerm = (tag: Atom, args: Val[]): CompoundTerm => {
+  if (tag === ArrayTag) return args;
+  return new GenericCompoundTerm(tag, args);
+}
+
+export const isCompound = (v: Val): v is CompoundTerm => Array.isArray(v) || v instanceof GenericCompoundTerm;
+
+export const termTag = (T: Inst) => {
+  if (Array.isArray(T)) return ArrayTag;
+  switch(typeof T) {
+    case "symbol":
+    case "number":
+    case "bigint":
+    case "string": return T;
+    default: return T.tag;
+  }
+}
+
+export const termArgsArray = (T: Inst): Val[] => {
+  if (Array.isArray(T)) return T;
+  switch(typeof T) {
+    case "symbol":
+    case "number":
+    case "bigint":
+    case "string": return [];
+    default: return T.args;
+  }
+}
+
+export class GenericCompoundTerm {
   constructor(
     public readonly tag: Atom,
     public readonly args: Val[],
   ) {}
 
-  copy(vars = new Map<Var, Var>()): CompoundTerm {
-    return new CompoundTerm(
+  copy(vars = new Map<Var, Var>()): GenericCompoundTerm {
+    return new GenericCompoundTerm(
       this.tag,
       this.args.map(A => {
         const X = deref(A);
-        if (X instanceof CompoundTerm) return X.copy(vars);
+        if (X instanceof GenericCompoundTerm) return X.copy(vars);
         if (!(X instanceof Var)) return X;
         if (!vars.has(X)) vars.set(X, new Var());
         return vars.get(X)!;
@@ -52,7 +85,7 @@ export class CompoundTerm {
 }
 
 type UnboundVar = Var & { ref: UnboundSym };
-type Atomic = Atom | string | number | null | bigint; // TODO...
+type Atomic = Atom | string | number | bigint; // TODO... null??
 type Atom = symbol;
 type Inst = CompoundTerm | Atomic;
 export type Val = Var | Inst;
@@ -67,7 +100,11 @@ export function* unify_2(A: Val, B: Val): Choices {
   if (A === B) return yield;
   if (A instanceof Var) return yield* A.set(B);
   else if (B instanceof Var) return yield* B.set(A);
-  else if (A instanceof CompoundTerm && B instanceof CompoundTerm) {
+  else if (Array.isArray(A) && Array.isArray(B)) {
+    // Represented as #/n terms
+    return yield* unifyArgs(A, B);
+  }
+  else if (A instanceof GenericCompoundTerm && B instanceof GenericCompoundTerm) {
     if (
       A.tag !== B.tag
       || A.args.length !== B.args.length
@@ -146,7 +183,7 @@ db_set("user:b_linkval/2", b_linkval);
 const SYM_COLON = Symbol.for(":");
 const SYM_USER = Symbol.for("user");
 const predWithMod = (T: Val): [Atom, Val] =>
-  T instanceof CompoundTerm && T.tag === SYM_COLON && T.args.length === 2
+  T instanceof GenericCompoundTerm && T.tag === SYM_COLON && T.args.length === 2
     ? T.args.map(deref) as [Atom, Val]
     : [SYM_USER, T];
 
@@ -161,7 +198,7 @@ export const call_1 = function(T: Val) {
   if (typeof goal === "symbol") { // atom
     name = goal;
     args = [];
-  } else if (goal instanceof CompoundTerm) {
+  } else if (goal instanceof GenericCompoundTerm) {
     name = goal.tag;
     args = goal.args;
   } else throw new Error('nyi');
