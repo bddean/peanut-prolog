@@ -224,3 +224,18 @@ export const def_det = (
     yield;
   });
 }
+
+export const def_fun = (
+	name: string,
+	arity: number,
+	pred: (...args: Val[]) => Val,
+) => {
+  db_set(`user:${name}/${arity}`, function*(...args: Val[]) {
+    args = args.map(deref);
+    const inputs = args.slice(0, args.length - 1);
+    const outputVar = args[args.length - 1];
+    const returned = pred(...inputs)
+    yield* unify_2(outputVar, returned);
+  });
+}
+

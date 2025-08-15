@@ -1,3 +1,5 @@
+get arrayu interop (#(_,_ ,_ ...)) so it's easy to implement e.g. atomics_to_string
+
 BUG: Seems like we forget to numbrervars for :- declrations.
 
 consider switching from symbols to strings for atoms
@@ -15,7 +17,7 @@ self-hosting checklist:
 	[ ] phrase/2 (both list concatenation and for calling dcgs)
 	[ ] string_codes/2
 	[ ] atomics_to_string/2
-	[ ] atom_string/2
+	[/] atom_string/2
 	[/] string/1 var/1 and other value typecheckers (types.ts)
 	[/] ->/2 (no meta calls, and probably not quite to spec...)
 	[/] maplist/n
