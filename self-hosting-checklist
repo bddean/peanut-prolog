@@ -11,12 +11,12 @@ self-hosting checklist:
 	[ ] numbervars/3
 	[ ] format/3 (only some cases)
 		- e.g. format(string(Message), "Failed to compile clauses: ~w", [X])
-	[ ] string/1 var/1 and other value typecheckers (types.ts)
 	[	] domain_error(rule_or_directive, Message)
 	[ ] phrase/2 (both list concatenation and for calling dcgs)
 	[ ] string_codes/2
 	[ ] atomics_to_string/2
 	[ ] atom_string/2
+	[/] string/1 var/1 and other value typecheckers (types.ts)
 	[/] ->/2 (no meta calls, and probably not quite to spec...)
 	[/] maplist/n
 	[/] is/2: <<, +
