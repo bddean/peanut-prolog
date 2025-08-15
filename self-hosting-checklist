@@ -1,33 +1,29 @@
 BUG: Seems like we forget to numbrervars for :- declrations.
 
+consider switching from symbols to strings for atoms
+	- since symbol registry prevents gc. we'd need to make our own
+	weak registry for non-static symbols
+		- no this is probably incorrect -- they can't be weakkeys for same reason strings can't
+			but that doesn't mean memory isn't GC'd internally
+
 self-hosting checklist:
-	[/] maplist/n [TODO - TEST!]
-	[/] is/2: <<, +
 	[ ] :- use_module(library(readutil), [read_file_to_terms/3]).
-	[/] :- use_module(library(gensym), [gensym/2]).
-	[/] arg/3
-	[ ] ->/2 (probably need to replace call with generator-style for this...)
-		- could also just replace in src pretty easily to get to self-hosting faster.
-		- wait this is easy... i can just do comptime only for now.
-			- or replace with a cond or if_ predicate
-			- (you DO need ancestral cuts to implement rt version b/c u need to cut parent ;/2).
-		- also tempted to break compat with swi so cut behavior is simpler...
-		- WAIT A MINUTE -- you can use "parent cut" as an effect, right??
-			- like, maybe cut is the return value...
-		- yeah ok the key insight is actually that only cuts
-			that bubble up as *returns* should be handled here.
-			- so that means callee changes are minimal
-	[/] \=
 	[ ] numbervars/3
-	[/] numlist/3
-	[/] functor/3 (still need to test...)
-	[/] memberchk, member
 	[ ] format/3 (only some cases)
 		- e.g. format(string(Message), "Failed to compile clauses: ~w", [X])
 	[ ] string/1 var/1 and other value typecheckers (types.ts)
-	[/] throw
 	[	] domain_error(rule_or_directive, Message)
 	[ ] phrase/2 (both list concatenation and for calling dcgs)
 	[ ] string_codes/2
 	[ ] atomics_to_string/2
 	[ ] atom_string/2
+	[/] ->/2 (no meta calls, and probably not quite to spec...)
+	[/] maplist/n
+	[/] is/2: <<, +
+	[/] :- use_module(library(gensym), [gensym/2]).
+	[/] arg/3
+	[/] throw
+	[/] numlist/3
+	[/] functor/3 (still need to test...)
+	[/] memberchk, member
+	[/] \=

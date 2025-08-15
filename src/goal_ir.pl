@@ -13,6 +13,14 @@ goal_ir(Scope, Cont, (A0, B0), A) :-
 	goal_ir(Scope, Cont, B0, B),
 	goal_ir(Scope, B, A0, A).
 
+goal_ir(Scope, Cont, (A -> B ; C), Out) :-
+	!,
+	goal_ir(Scope, Cont, (A, !, B ; C), Out).
+
+goal_ir(Scope, Cont, (A -> B), Out) :-
+	!,
+	goal_ir(Scope, Cont, (A, !, B ; fail), Out).
+
 goal_ir(Scope, Cont, (A0 ; B0), (A , B)) :-
 	!,
 	maplist(

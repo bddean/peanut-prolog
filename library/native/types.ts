@@ -3,7 +3,7 @@ import {
   deref,
   Val,
   Var,
-} from 'pl-runtime';
+} from "pl-runtime";
 
 const var_1 = function*(V: Val) {
   V = deref(V);

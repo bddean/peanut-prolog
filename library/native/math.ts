@@ -51,5 +51,5 @@ function* $is_op_4(Op: Val, R: Val, A: Val, B: Val) {
 	  case Symbol.for(">>"): yield* unify_2(R, A >> B);
 	}
 }
-db_set("$is_op/3", $is_op_4);
+db_set("user:$is_op/4", $is_op_4);
 
