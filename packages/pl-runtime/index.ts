@@ -190,3 +190,37 @@ db_set("user:fail/0", fail_0);
 db_set("user:call/1", call_1);
 db_set("user:throw/1", throw_1);
 db_set("user:true/0", true_0);
+
+export const def_nondet = (
+	name: string,
+	arity: number,
+	pred: (...args: Val[]) => Choices
+) => {
+  db_set(`user:${name}/${arity}`, function*(...args: Val[]) {
+    args = args.map(deref);
+    yield* pred(...args);
+  });
+}
+
+export const def_semidet = (
+	name: string,
+	arity: number,
+	pred: (...args: Val[]) => boolean,
+) => {
+  db_set(`user:${name}/${arity}`, function*(...args: Val[]) {
+    args = args.map(deref);
+    if (pred(...args)) yield;
+  });
+}
+
+export const def_det = (
+	name: string,
+	arity: number,
+	pred: (...args: Val[]) => void,
+) => {
+  db_set(`user:${name}/${arity}`, function*(...args: Val[]) {
+    args = args.map(deref);
+    pred(...args)
+    yield;
+  });
+}
