@@ -48,3 +48,5 @@ for (const spec of `
   push2 shift2 reverse1
   fill2 fill3 fill4
 `);
+
+// Todo: splice (varargs)
