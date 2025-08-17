@@ -1,4 +1,6 @@
-get arrayu interop (#(_,_ ,_ ...)) so it's easy to implement e.g. atomics_to_string
+[/] get arrayu interop (#(_,_ ,_ ...)) so it's easy to implement e.g. atomics_to_string
+	[ ] how to test this?
+[	] fix arity-0 compound literals
 
 BUG: Seems like we forget to numbrervars for :- declrations.
 

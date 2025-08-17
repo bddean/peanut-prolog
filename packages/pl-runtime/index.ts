@@ -37,7 +37,7 @@ export const makeTerm = (tag: Atom, args: Val[]): CompoundTerm => {
 
 export const isCompound = (v: Val): v is CompoundTerm => Array.isArray(v) || v instanceof GenericCompoundTerm;
 
-export const termTag = (T: Inst): Symbol | string | bigint | number | undefined => {
+export const termTag = (T: Inst): symbol | string | bigint | number => {
   if (Array.isArray(T)) return ArrayTag;
   switch(typeof T) {
     case "symbol":
