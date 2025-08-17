@@ -4,12 +4,6 @@
 
 BUG: Seems like we forget to numbrervars for :- declrations.
 
-consider switching from symbols to strings for atoms
-	- since symbol registry prevents gc. we'd need to make our own
-	weak registry for non-static symbols
-		- no this is probably incorrect -- they can't be weakkeys for same reason strings can't
-			but that doesn't mean memory isn't GC'd internally
-
 self-hosting checklist:
 	[ ] :- use_module(library(readutil), [read_file_to_terms/3]).
 	[ ] numbervars/3
