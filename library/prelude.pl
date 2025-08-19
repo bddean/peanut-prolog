@@ -3,8 +3,10 @@
 
 :- ensure_loaded(library(arrays)).
 :- ensure_loaded(library(lists)).
+:- ensure_loaded(library(strings)).
 :- ensure_loaded(library(math)).
 :- ensure_loaded(library(types)).
+:- ensure_loaded(library(ranges)).
 
 % Basic Prolog predicates
 A = A.
@@ -13,16 +15,6 @@ X \= Y :- \+ (X = Y).
 
 X > Y :- Y < X.
 X >= Y :- Y =< X.
-
-between(Low, High, X) :-
-	nonvar(X),
-	!,
-	Low =< X, X =< High.
-between(X, High, X) :- X =< High.
-between(Low, High, X) :-
-	Low < High,
-	succ(Low, LowN),
-	between(LowN, High, X).
 
 arg(I, T, E) :-
 	functor(T, _, Arity),
