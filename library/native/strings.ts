@@ -48,3 +48,12 @@ def_nondet("atom_string", 2, function*(a: Val, s: Val) {
   if (key === undefined) throw new Error('symbol is not registered!');
   return yield* unify_2(key, s);
 });
+
+def_nondet("string_codes_array", 2, function*(S: Val, CS: Val) {
+  if (Array.isArray(CS)) return yield* unify_2(S, String.fromCodePoint(...CS as number[]))
+  if (typeof S === "string") return yield* unify_2(
+    CS,
+    Array.from(S, (_, i) => S.codePointAt(i)!),
+  );
+  throw new Error('types!');
+});

@@ -37,7 +37,8 @@ export const makeTerm = (tag: Atom, args: Val[]): CompoundTerm => {
 
 export const isCompound = (v: Val): v is CompoundTerm => Array.isArray(v) || v instanceof GenericCompoundTerm;
 
-export const termTag = (T: Inst): symbol | string | bigint | number => {
+
+export const termTag = (T: Inst) => {
   if (Array.isArray(T)) return ArrayTag;
   switch(typeof T) {
     case "symbol":
@@ -80,7 +81,7 @@ export class GenericCompoundTerm {
 
   toString() {
     const tagName = Symbol.keyFor(this.tag);
-    return `${tagName}(${this.args.map(String).join(", ")})`
+    return `${tagName}(${this.args.map(String).join(",")})`
   }
 }
 
@@ -123,7 +124,10 @@ function* unifyArgs(A: Val[], B: Val[], i = 0): Choices {
 
 export const writeln_1 = function*(X: Val) {
   const val = deref(X);
-  const s = typeof val === "symbol"  ? Symbol.keyFor(val) : String(val);
+  const s =
+    typeof val === "symbol" ? Symbol.keyFor(val)
+    : Array.isArray(val) ? `#(${val.join(",")})`
+    : String(val);
   console.log(s);
   yield;
 }

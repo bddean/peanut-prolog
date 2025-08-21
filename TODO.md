@@ -1,3 +1,15 @@
+CURRENTLY -- debugging string issue
+
+reconsiderign terms representation
+	dictionaries: {__proto__: null, [TagSym]: tag, ...kvs}
+
+	compound terms: Object.assign([arg1, arg2, ...args], { [TagSym]: tag });
+
+	alternatively, compound terms could be ArrayLike. With # being
+	normal arrays. In that case, from informatl profiling on node, it seems
+	like property get/set is as fast but Array.prototype method
+	calls are much slower (though not THAT much slower).
+
 NEXT
 	[.] refactor so we have xxx.ts in library and can import natually from there... 
 

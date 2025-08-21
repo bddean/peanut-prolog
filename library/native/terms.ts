@@ -54,6 +54,7 @@ export const $003D$002E$002E_2 = function*(T: Val, List: Val) {
     const ConstructedList = makeTerm(SYM_LIST, [termTag(T), argsLs]);
     return yield* unify_2(ConstructedList, List);
 	}
+	// T is a variable, List should be a proper list
 	if (List instanceof GenericCompoundTerm) {
 	  // TODO check if is actual list
 	  let [tag, argsLs] = List.args.map(deref) as [Val, Val];

@@ -58,7 +58,7 @@ for (const [name, n] of splitSpecs(`
   with4 concat3
   slice234
   pop2 unshift2
-  join2
+  join3
   toReversed2
   includes3
 `)) def_nondet(
