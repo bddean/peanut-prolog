@@ -39,7 +39,7 @@ db_set("user:functor/3", functor_3);
 const SYM_LIST = Symbol.for("[|]");
 
 // =../2
-export const $003D$002E$002E_2 = function*(T: Val, List: Val) {
+export const univ_2 = function*(T: Val, List: Val) {
 	T = deref(T); List=deref(List);
 	if (typeof T === "symbol") { // Uhhh are u sure this is right...
 	  return yield* unify_2(List, makeTerm(SYM_LIST, [T, SYM_LIST]));
@@ -75,4 +75,4 @@ export const $003D$002E$002E_2 = function*(T: Val, List: Val) {
   throw new Error('uninst');
 }
 
-db_set("user:=../2", $003D$002E$002E_2);
+db_set("user:=../2", univ_2);

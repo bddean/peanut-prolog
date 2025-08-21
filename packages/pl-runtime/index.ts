@@ -3,27 +3,27 @@ type UnboundSym = typeof UnboundSym;
 type Choices = Generator<void, void, void>;
 let _vid = 0; // For debugging etc.
 export class Var {
-	static *allocate() {
-		while(true)	yield new Var();
-	}
+  static *allocate() {
+    while (true) yield new Var();
+  }
   ref: Val | UnboundSym = UnboundSym;
   id = _vid++;
   *set(v: Val) {
     if (this.ref !== UnboundSym) return; // TODO skip this check for unify??
     try {
-    	this.ref = v;
-    	yield;
+      this.ref = v;
+      yield;
     } finally {
-    	this.ref = UnboundSym;
+      this.ref = UnboundSym;
     }
   }
 
   toString() {
-  	const val = deref(this);
-  	if (typeof val === "symbol") return Symbol.keyFor(val);
-  	if (val instanceof Var) return `_V${val.id}`;
-  	return String(val);
-	}
+    const val = deref(this);
+    if (typeof val === "symbol") return Symbol.keyFor(val);
+    if (val instanceof Var) return `_V${val.id}`;
+    return String(val);
+  }
 }
 
 export const ArrayTag = Symbol.for("#");
@@ -40,7 +40,7 @@ export const isCompound = (v: Val): v is CompoundTerm => Array.isArray(v) || v i
 
 export const termTag = (T: Inst) => {
   if (Array.isArray(T)) return ArrayTag;
-  switch(typeof T) {
+  switch (typeof T) {
     case "symbol":
     case "number":
     case "bigint":
@@ -51,7 +51,7 @@ export const termTag = (T: Inst) => {
 
 export const termArgsArray = (T: Inst): Val[] => {
   if (Array.isArray(T)) return T;
-  switch(typeof T) {
+  switch (typeof T) {
     case "symbol":
     case "number":
     case "bigint":
@@ -64,7 +64,7 @@ export class GenericCompoundTerm {
   constructor(
     public readonly tag: Atom,
     public readonly args: Val[],
-  ) {}
+  ) { }
 
   copy(vars = new Map<Var, Var>()): GenericCompoundTerm {
     return new GenericCompoundTerm(
@@ -81,7 +81,7 @@ export class GenericCompoundTerm {
 
   toString() {
     const tagName = Symbol.keyFor(this.tag);
-    return `${tagName}(${this.args.map(String).join(",")})`
+    return `${tagName}(${this.args.map(termString).join(",")})`
   }
 }
 
@@ -94,6 +94,16 @@ export type Val = Var | Inst;
 export function deref(v: Val): Inst | UnboundVar {
   while (v instanceof Var && v.ref !== UnboundSym) v = v.ref;
   return v as UnboundVar;
+}
+
+export function isUnifiable(A: Val, B: Val): boolean {
+  A = deref(A); B = deref(B);
+  if (A === B) return true;
+  if (A instanceof Var || B instanceof Var) return true;
+  if (!isCompound(A) || !isCompound(B)) return false;
+  if (termTag(A) !== termTag(B)) return false;
+  const [As, Bs] = [A, B].map(termArgsArray);
+  return As.every((ai, i) => isUnifiable(ai, Bs[i]));
 }
 
 export function* unify_2(A: Val, B: Val): Choices {
@@ -122,17 +132,21 @@ function* unifyArgs(A: Val[], B: Val[], i = 0): Choices {
   }
 }
 
-export const writeln_1 = function*(X: Val) {
+const termString = (X: Val) => {
   const val = deref(X);
   const s =
     typeof val === "symbol" ? Symbol.keyFor(val)
-    : Array.isArray(val) ? `#(${val.map(String).join(",")})`
-    : String(val);
-  console.log(s);
+      : Array.isArray(val) ? `#(${val.map(String).join(",")})`
+        : String(val);
+        return s;
+}
+
+export const writeln_1 = function*(X: Val) {
+  console.log(termString(X));
   yield;
 }
 
-export const fail_0 = function*() {}
+export const fail_0 = function*() { }
 
 // Registry of module objects for dynamic calls.
 const moduleEvalFns = new Map<Atom, (s: string) => any>();
@@ -151,12 +165,12 @@ export const db_get = (key: string): Function | undefined => {
   return predicateDB.get(key);
 }
 
-const kv_db = new Map<symbol|string|number|bigint, Val>();
+const kv_db = new Map<symbol | string | number | bigint, Val>();
 
 // TODO: {n,}b_deleteval and getval.
 const nb_linkval = function*(K: Val, V: Val) {
   K = deref(K);
-  switch(typeof K) {
+  switch (typeof K) {
     default:
       throw new Error("Invalid key type");
     case "string":
@@ -173,7 +187,7 @@ db_set("user:nb_linkval/2", nb_linkval);
 
 const b_linkval = function*(K: Val, V: Val) {
   K = deref(K);
-  const KTyped = K as symbol|string|number|bigint;
+  const KTyped = K as symbol | string | number | bigint;
   const prev = kv_db.get(KTyped);
   try {
     yield* nb_linkval(K, V);
@@ -192,7 +206,7 @@ const predWithMod = (T: Val): [Atom, Val] =>
     : [SYM_USER, T];
 
 export const call_1 = function(T: Val) {
-	T = deref(T);
+  T = deref(T);
   const [mod, goal] = predWithMod(T);
   if (goal instanceof Var) {
     throw new Error("Can't call var.");
@@ -233,9 +247,9 @@ db_set("user:throw/1", throw_1);
 db_set("user:true/0", true_0);
 
 export const def_nondet = (
-	name: string,
-	arity: number,
-	pred: (...args: Val[]) => Choices
+  name: string,
+  arity: number,
+  pred: (...args: Val[]) => Choices
 ) => {
   db_set(`user:${name}/${arity}`, function*(...args: Val[]) {
     args = args.map(deref);
@@ -244,9 +258,9 @@ export const def_nondet = (
 }
 
 export const def_semidet = (
-	name: string,
-	arity: number,
-	pred: (...args: Val[]) => boolean,
+  name: string,
+  arity: number,
+  pred: (...args: Val[]) => boolean,
 ) => {
   db_set(`user:${name}/${arity}`, function*(...args: Val[]) {
     args = args.map(deref);
@@ -255,9 +269,9 @@ export const def_semidet = (
 }
 
 export const def_det = (
-	name: string,
-	arity: number,
-	pred: (...args: Val[]) => void,
+  name: string,
+  arity: number,
+  pred: (...args: Val[]) => void,
 ) => {
   db_set(`user:${name}/${arity}`, function*(...args: Val[]) {
     args = args.map(deref);
@@ -267,9 +281,9 @@ export const def_det = (
 }
 
 export const def_fun = (
-	name: string,
-	arity: number,
-	pred: (...args: Val[]) => Val,
+  name: string,
+  arity: number,
+  pred: (...args: Val[]) => Val,
 ) => {
   db_set(`user:${name}/${arity}`, function*(...args: Val[]) {
     args = args.map(deref);
@@ -280,3 +294,4 @@ export const def_fun = (
   });
 }
 
+def_semidet("==", 2, isUnifiable);

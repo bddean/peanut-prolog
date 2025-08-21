@@ -1,5 +1,3 @@
-CURRENTLY -- debugging string issue
-
 reconsiderign terms representation
 	dictionaries: {__proto__: null, [TagSym]: tag, ...kvs}
 

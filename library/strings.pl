@@ -19,11 +19,7 @@ string_codes(S, Cs) :-
 
 chars_to_string_(Cs, S) :-
 	maplist(atom_string, Cs, Subs),
-	writeln("START Arr"),
-	writeln(array_list(Arr, Subs)),
 	array_list(Arr, Subs),
-	writeln(array_list(Arr, Subs)),
-	writeln("END Arr"),
 	array_join(Arr, "", S).
 
 string_to_chars_(S, [], N, I) :- I > N, !.
