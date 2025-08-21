@@ -5,7 +5,7 @@ array_list(Arr, Ls) :- nonvar(Arr), !,
 	array_to_list_(Arr, Ls, 0, N).
 
 array_list(Arr, Ls) :-
-	Arr = #(0), %% TODO support #()
+	Arr = #(0), %% TODO support #(). This is a hack.
 	maplist(array_push(Arr), Ls),
 	array_shift(Arr, _).
 
