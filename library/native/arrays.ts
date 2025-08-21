@@ -7,6 +7,7 @@ import {
   makeTerm,
   def_fun,
   def_det,
+  deref,
 } from "pl-runtime";
 
 def_nondet("term_tag_args", 3, function*(
@@ -64,6 +65,10 @@ for (const [name, n] of splitSpecs(`
 `)) def_nondet(
   `array_${name}`, n,
   function*(a: any, ...args: any[]) {
+    a = deref(a); // nosubmit...
+    for (let i = 0 ; i < a.length ; i++) a[i] = deref(a[i]);
+    for (let i = 0 ; i < args.length ; i++) args[i] = deref(args[i]);
+
     const ret = a[name](...args.slice(0, -1));
     // Treat undefined as failure for pop and unshift.
     if (ret === undefined) return;

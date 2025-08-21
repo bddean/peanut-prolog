@@ -20,9 +20,9 @@ string_codes(S, Cs) :-
 chars_to_string_(Cs, S) :-
 	maplist(atom_string, Cs, Subs),
 	writeln("START Arr"),
-	writeln(Subs),
+	writeln(array_list(Arr, Subs)),
 	array_list(Arr, Subs),
-	writeln(Arr),
+	writeln(array_list(Arr, Subs)),
 	writeln("END Arr"),
 	array_join(Arr, "", S).
 

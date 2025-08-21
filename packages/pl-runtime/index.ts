@@ -126,7 +126,7 @@ export const writeln_1 = function*(X: Val) {
   const val = deref(X);
   const s =
     typeof val === "symbol" ? Symbol.keyFor(val)
-    : Array.isArray(val) ? `#(${val.join(",")})`
+    : Array.isArray(val) ? `#(${val.map(String).join(",")})`
     : String(val);
   console.log(s);
   yield;
