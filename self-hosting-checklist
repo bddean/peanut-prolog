@@ -5,14 +5,15 @@
 BUG: Seems like we forget to numbrervars for :- declrations.
 
 self-hosting checklist:
-	[ ] :- use_module(library(readutil), [read_file_to_terms/3]).
+	[ ] atomics_to_string/2
 	[ ] numbervars/3
+	[	] domain_error(rule_or_directive, Message)
+		[ ] and errors lib in general...
+	[ ] :- use_module(library(readutil), [read_file_to_terms/3]).
 	[ ] format/3 (only some cases)
 		- e.g. format(string(Message), "Failed to compile clauses: ~w", [X])
-	[	] domain_error(rule_or_directive, Message)
 	[ ] phrase/2 (both list concatenation and for calling dcgs)
-	[ ] string_codes/2
-	[ ] atomics_to_string/2
+	[/] string_codes/2
 	[/] atom_string/2
 	[/] string/1 var/1 and other value typecheckers (types.ts)
 	[/] ->/2 (no meta calls, and probably not quite to spec...)
