@@ -1,7 +1,7 @@
 :- ensure_loaded("pl-runtime").
-:- ensure_loaded(library(native/terms)).
 
 :- ensure_loaded(library(arrays)).
+:- ensure_loaded(library(terms)).
 :- ensure_loaded(library(lists)).
 :- ensure_loaded(library(strings)).
 :- ensure_loaded(library(math)).

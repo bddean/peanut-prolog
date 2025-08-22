@@ -10,7 +10,7 @@ import {
   deref,
 } from "pl-runtime";
 
-def_nondet("term_tag_args", 3, function*(
+def_nondet("term_tag_args", 3, function* term_tag_args(
   Term,
   Tag,
   Args,
@@ -19,8 +19,9 @@ def_nondet("term_tag_args", 3, function*(
     const tag = termTag(Term);
     const args = termArgsArray(Term);
 
-    for (const _ of unify_2(Tag, tag))
+    for (const _ of unify_2(Tag, tag)) {
       yield* unify_2(Args, args);
+    }
   }
   if (Tag instanceof Var || Args instanceof Var) {
     throw new Error("insufficiently instantiated");

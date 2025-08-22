@@ -25,7 +25,7 @@ chars_to_string_(Cs, S) :-
 string_to_chars_(S, [], N, I) :- I > N, !.
 string_to_chars_(S, [C|Cs], N, I) :- I =< N,
 	get_string_char(S, I, C),
-	In is I + 1,
+	succ(I, In),
 	string_to_chars_(S, Cs, N, In).
 
 string_chars(S, Cs) :- nonvar(S), !,
