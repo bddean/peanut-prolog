@@ -2,8 +2,6 @@
 	[ ] how to test this?
 [ ] fix arity-0 compound literals
 
-BUG: Seems like we forget to numbrervars for :- declrations.
-
 self-hosting checklist:
 	[ ] atomics_to_string/2
 	[?] numbervars/3
