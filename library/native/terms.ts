@@ -2,10 +2,11 @@ import {
   db_set,
   deref,
   unify_2,
-  Val,
+  Val,Var,
   isCompound,
   termTag,
   termArgsArray,
+  def_fun,
 } from 'pl-runtime';
 
 const get_arg$_3 = function*(Index: Val, T: Val, Element: Val) {
@@ -31,3 +32,10 @@ const functor_3 = function*(T: Val, Name: Val, Arity: Val) {
 		yield* unify_2(Arity, termArgsArray(T).length);
 }
 db_set("user:functor/3", functor_3);
+
+const term_variablez = (X: Val) =>
+  X instanceof Var ? [X]
+  : typeof X != "object" ? []
+  : termArgsArray(X).flatmap(term_variablez);
+
+def_fun("term_variablez", 2, term_variablez).
