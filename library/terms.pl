@@ -8,3 +8,7 @@ T =.. [A|Xs] :-
 		array_list(Xz, Xs)
 	; array_list(Xz, Xs),
 		term_tag_args(T, A, Xz).
+
+term_variables(T, Vs) :-
+  term_variablez(T, Vz),
+  array_list(Vz, Vs).
