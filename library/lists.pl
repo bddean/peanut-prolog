@@ -1,4 +1,4 @@
-member(X, [X|_]).
+hmember(X, [X|_]).
 member(X, [_|Tail]) :- member(X, Tail).
 
 memberchk(X, L) :- member(X, L), !.
@@ -15,6 +15,13 @@ numlist(X, X, [X]) :- !.
 numlist(X, Y, [X|L]) :-
 	succ(X, Xn),
 	numlist(Xn, Y, L).
+
+numbervars(T, N0, N) :-
+  term_variables(T, Vs),
+  numlist(N0, N, Ns),
+  maplist(numbervars__var_, Ns, Vs).
+
+numbervars__var_(N, '$VAR'(N)).
 
 maplist(_, []).
 maplist(G, [X|Xs]) :- call(G, X), maplist(G, Xs).
