@@ -1,12 +1,12 @@
 [/] get arrayu interop (#(_,_ ,_ ...)) so it's easy to implement e.g. atomics_to_string
 	[ ] how to test this?
-[	] fix arity-0 compound literals
+[ ] fix arity-0 compound literals
 
 BUG: Seems like we forget to numbrervars for :- declrations.
 
 self-hosting checklist:
 	[ ] atomics_to_string/2
-	[ ] numbervars/3
+	[?] numbervars/3
 	[	] domain_error(rule_or_directive, Message)
 		[ ] and errors lib in general...
 	[ ] :- use_module(library(readutil), [read_file_to_terms/3]).
