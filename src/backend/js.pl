@@ -69,10 +69,9 @@ js(\'$VAR'(N)) -->
 	js($.(Name)).
 js(\[]) --> "Symbol.for(\"[|]\")", !.  % SWI specific thing
 js(\N) --> { number(N), number_codes(N, Codes) }, Codes.
-js(\Term) -->	 { string(Term) }, "\"", js_escape(Term), "\"".
+js(\Term) --> { string(Term) }, "\"", js_escape(Term), "\"".
 js(\Term) -->
 	{ atom(Term), atom_string(Term, TermStr) },
-	% TODO: Consider changing atoms to symbols in JavaScript
 	"Symbol.for(\"", js_escape(TermStr), "\")".
 
 js(\Term) -->
