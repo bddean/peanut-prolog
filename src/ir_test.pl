@@ -34,7 +34,7 @@ test(simple_defun, [nondet]) :-
 test(real_defun, [nondet]) :-
 	IR0 = defun(generator,(=)/2,(
 		allocate_vars([$.(0),$.(1)]),
-		(funcall(unify,[$.('CALLED_TERM'),\('$VAR'(A)='$VAR'(A))])
+		(funcall(unify,[$.('CALLED_TERM'),\('$PEANUT VAR'(A)='$PEANUT VAR'(A))])
 		*->funcall(true,[])
 		*->yield
 		),nothing

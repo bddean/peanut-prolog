@@ -1,9 +1,9 @@
 :- ensure_loaded(library(native/math)).
 :- ensure_loaded(library(native/types)).
 
-is(X, Expr) :- var(Expr), throw("is/2 expression must be ground").
-is(N, N) :- number(N), !.
-is(X, Expr) :-
+X is Expr :- var(Expr), throw("is/2 expression must be ground").
+N is N :- number(N), !.
+X is Expr :-
 	Expr =.. [Op, EA, EB],
 	A is EA,
 	B is EB,

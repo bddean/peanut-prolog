@@ -96,9 +96,6 @@ compile_clause((Head :- Body), (
 	funcall(user, "unify", [$.("CALLED_TERM"), \Head]) *-> BodyIR
 )) :-	goal_ir(Body, BodyIR).
 
-var_name_(N, $.(Name)) :- format(string(Name), "~d", [N]).
-
-
 % Convert a clause to Head :- Body format
 normalize_clause((:- B), (:- B)) :- !.
 normalize_clause((H :- B), (H :- B)) :- !.

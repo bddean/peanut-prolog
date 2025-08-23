@@ -22,6 +22,7 @@ def_nondet("term_tag_args", 3, function* term_tag_args(
     for (const _ of unify_2(Tag, tag)) {
       yield* unify_2(Args, args);
     }
+    return;
   }
   if (Tag instanceof Var || Args instanceof Var) {
     throw new Error("insufficiently instantiated");

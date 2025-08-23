@@ -28,13 +28,13 @@ test(js_predicate_name, [nondet]) :-
 	assertion(Result == "$_STARMODS.$003D_2").
 
 test(var_term) :-
-	phrase(js(\('$VAR'(0))), Codes),
+	phrase(js(\('$PEANUT VAR'(0))), Codes),
 	!,
 	string_codes(Result, Codes),
 	assertion(Result == "$_0").
 
 test(var_term_in_compound) :-
-	Term = foo('$VAR'(0), '$VAR'(1)),
+	Term = foo('$PEANUT VAR'(0), '$PEANUT VAR'(1)),
 	phrase(js(\Term), Codes),
 	string_codes(Result, Codes),
 	sub_string(Result, _, _, _, "new Term"),

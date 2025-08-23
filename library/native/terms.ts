@@ -33,9 +33,11 @@ const functor_3 = function*(T: Val, Name: Val, Arity: Val) {
 }
 db_set("user:functor/3", functor_3);
 
-const term_variablez = (X: Val) =>
+const allTermVars = (X: Val): Var[] =>
   X instanceof Var ? [X]
   : typeof X != "object" ? []
-  : termArgsArray(X).flatmap(term_variablez).
+  : termArgsArray(X).map(deref).flatMap(allTermVars);
 
-def_fun("term_variablez", 2, term_variablez).
+const term_variablez = (X: Val) => [...new Set(allTermVars(X))];
+
+def_fun("term_variablez", 2, term_variablez);

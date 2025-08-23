@@ -43,12 +43,12 @@ function* $is_op_4(Op: Val, R: Val, A: Val, B: Val) {
 	if (typeof A !== "number" || typeof B !== "number") return;
 	switch(Op) {
 	  default: throw new Error(`Unrecognized op: ${Symbol.keyFor(Op)}`);
-	  case Symbol.for("+"): yield* unify_2(R, A + B);
-	  case Symbol.for("-"): yield* unify_2(R, A - B);
-	  case Symbol.for("*"): yield* unify_2(R, A * B);
-	  case Symbol.for("/"): yield* unify_2(R, A / B);
-	  case Symbol.for("<<"): yield* unify_2(R, A << B);
-	  case Symbol.for(">>"): yield* unify_2(R, A >> B);
+	  case Symbol.for("+"): return yield* unify_2(R, A + B);
+	  case Symbol.for("-"): return yield* unify_2(R, A - B);
+	  case Symbol.for("*"): return yield* unify_2(R, A * B);
+	  case Symbol.for("/"): return yield* unify_2(R, A / B);
+	  case Symbol.for("<<"): return yield* unify_2(R, A << B);
+	  case Symbol.for(">>"): return yield* unify_2(R, A >> B);
 	}
 }
 db_set("user:$is_op/4", $is_op_4);

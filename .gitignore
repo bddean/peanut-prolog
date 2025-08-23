@@ -5,3 +5,6 @@ packages/*/dist
 packages/pl-runtime/*.d.ts
 packages/pl-runtime/*.d.ts.map
 packages/pl-runtime/*.js
+
+tmp.js
+tmp.pl

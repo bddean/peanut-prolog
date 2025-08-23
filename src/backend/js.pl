@@ -63,7 +63,7 @@ js((Gen *-> Block)) -->
 	"\n}".
 
 % Term literals
-js(\'$VAR'(N)) -->
+js(\'$PEANUT VAR'(N)) -->
 	{ format(string(Name), "~d", [N]) },
 	!,
 	js($.(Name)).
@@ -76,7 +76,7 @@ js(\Term) -->
 
 js(\Term) -->
 	%% Handle any other compound terms
-	{ compound(Term), \+ Term = '$VAR'(_) },
+	{ compound(Term), \+ Term = '$PEANUT VAR'(_) },
 	{ compound_name_arguments(Term, Functor, Args) },
 	"makeTerm(", js(\Functor), ", [", js_term_args(Args), "])".
 
