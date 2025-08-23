@@ -36,6 +36,6 @@ db_set("user:functor/3", functor_3);
 const term_variablez = (X: Val) =>
   X instanceof Var ? [X]
   : typeof X != "object" ? []
-  : termArgsArray(X).flatmap(term_variablez);
+  : termArgsArray(X).flatmap(term_variablez).
 
 def_fun("term_variablez", 2, term_variablez).
