@@ -77,8 +77,7 @@ js(\Term) -->
 js(\Term) -->
 	%% Handle any other compound terms
 	{ compound(Term), \+ Term = '$VAR'(_) },
-	{ functor(Term, Functor, _) },
-	{ Term =.. [Functor|Args] },
+	{ compound_name_arguments(Term, Functor, Args) },
 	"makeTerm(", js(\Functor), ", [", js_term_args(Args), "])".
 
 % Variables and literals
