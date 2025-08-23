@@ -12,6 +12,7 @@
 :- use_module(helpers, [args_list/2]).
 :- use_module(ir, [walk_ir/3]).
 :- use_module(goal_ir).
+:- use_module(variables).
 
 % clauses_grouped groups a list of clauses (H :- B terms) into sublists
 % grouped by head name/arity.
@@ -56,7 +57,7 @@ clauses_ir(Clauses, IR) :-
 clauses_ir(Clauses, (
 	$.(FnName) := fn(generator, (
 		$.("CALLED_TERM") := Callee,
-		allocate_vars(VarNames),
+		AllocVars,
 		Impls
 	)),
 	db_set(Module, Name, Arity, $.(FnName))
@@ -67,9 +68,7 @@ clauses_ir(Clauses, (
 	% Set up local variables to add to the generated closure.
 	% TODO: Re-use variables after backtracking instead of generating
 	% 	separately for each clause -- OR allocate at clause start instead
-	numbervars(Clauses, 0, NumVars),
-	numlist(0, NumVars, VarNums),
-	maplist(var_name_, VarNums, VarNames),
+  numbervars_allocation(Clauses, AllocVars),
 
 	% TODO utility function for this -- i think it's repeated a
 	% couple times
