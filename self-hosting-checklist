@@ -1,15 +1,8 @@
 [ ] BUG: maplist with unequal length --> ifn recursion somehow
-[ ] bidirectional length/2
-
-[/] get arrayu interop (#(_,_ ,_ ...)) so it's easy to implement e.g. atomics_to_string
-	[ ] how to test this?
 
 self-hosting checklist:
 	[ ] atomics_to_string/2
-	[.] numbervars/3
-		[ ] buggy, see test
-		[ ] compiler needs to generate functor dynamically
-			for self hosting to work
+	[/] numbervars/3 (but may need dynamic functor name for compiler)
 	[	] domain_error(rule_or_directive, Message)
 		[ ] and errors lib in general...
 	[ ] :- use_module(library(readutil), [read_file_to_terms/3]).
