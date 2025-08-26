@@ -33,3 +33,18 @@ string_chars(S, Cs) :- nonvar(S), !,
 	string_to_chars_(S, Cs, N, 1).
 
 string_chars(S, Cs) :- chars_to_string_(Cs, S).
+
+atomics_to_string(Ats, S) :- atomics_to_string(Ats, "", S).
+atomics_to_string(Ats, Sep, S) :-
+	maplist(atomic_string_, Ats, Ss),
+	%% Hm.
+	%% - More efficient?: Use array_push directly
+	%% - More idiomatic?: foldl(string_join)
+	array_list(Sz, Ss),
+	atomic_string_(Sep, SSep),
+	array_join(Sz, SSep, S).
+
+atomic_string_(S, S) :- string(S), !.
+atomic_string_(A, S) :- atom(A), !, atom_string(A, S).
+atomic_string_(N, S) :- number(N), !, number_string(N, S).
+atomic_string_(_, _) :- throw(type_error).

@@ -57,3 +57,14 @@ def_nondet("string_codes_array", 2, function*(S: Val, CS: Val) {
   );
   throw new Error('types!');
 });
+
+def_nondet("number_string", 2, function*(n: Val, s: Val) {
+  if (n instanceof Var) {
+    if (typeof s !== "string") throw new Error('bad type');
+    return yield* unify_2(parseFloat(s), n);
+  }
+  // TODO: bignums!
+  if (typeof n !== "number") throw new Error('bad type');
+  return yield* unify_2(String(n), s);
+});
+

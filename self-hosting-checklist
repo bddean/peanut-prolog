@@ -1,14 +1,15 @@
 [ ] BUG: maplist with unequal length --> ifn recursion somehow
 
 self-hosting checklist:
-	[ ] atomics_to_string/2
-	[/] numbervars/3 (but may need dynamic functor name for compiler)
+	[ ] DCGs!
 	[	] domain_error(rule_or_directive, Message)
 		[ ] and errors lib in general...
 	[ ] :- use_module(library(readutil), [read_file_to_terms/3]).
 	[ ] format/3 (only some cases)
 		- e.g. format(string(Message), "Failed to compile clauses: ~w", [X])
 	[ ] phrase/2 (both list concatenation and for calling dcgs)
+	[/] atomics_to_string/2
+	[/] numbervars/3 (but may need dynamic functor name for compiler)
 	[/] string_codes/2
 	[/] atom_string/2
 	[/] string/1 var/1 and other value typecheckers (types.ts)

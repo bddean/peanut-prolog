@@ -32,3 +32,9 @@ maplist(G, [A|As], [B|Bs], [C|Cs]) :- call(G, A, B, C), maplist(G, As, Bs, Cs).
 
 maplist(_, [], [], [], []).
 maplist(G, [A|As], [B|Bs], [C|Cs], [D|Ds]) :- call(G, A, B, C, D), maplist(G, As, Bs, Cs, Ds).
+
+%! foldl(G, Xs, X0, X)
+foldl(_, [], X, X).
+foldl(G, [H|T], X0, X) :-
+	call(G, H, X0, X1),
+	foldl(G, T, X1, X).
