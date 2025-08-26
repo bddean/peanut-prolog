@@ -36,6 +36,7 @@ clauses_grouped__first_spec_([(H :- _)|_], A/N) :- functor(H, A, N).
 % terms_ir(Terms, IR) where Terms is like the output of
 % read_file_to_terms/3.
 terms_ir -->
+	maplist(translate_clause),
 	maplist(normalize_clause),
 	clauses_grouped,
 	maplist(terms_ir__tform_).
@@ -95,6 +96,10 @@ normalize_and_compile_clauses([Clause|Rest], (ClauseIR, RestIR)) :-
 compile_clause((Head :- Body), (
 	funcall(user, "unify", [$.("CALLED_TERM"), \Head]) *-> BodyIR
 )) :-	goal_ir(Body, BodyIR).
+
+% TODO: Replace with term expansion
+translate_clause(Clause0, Clause) :- dcg_translate_rule(Clause0, Clause), !.
+translate_clause(Clause, Clause).
 
 % Convert a clause to Head :- Body format
 normalize_clause((:- B), (:- B)) :- !.
