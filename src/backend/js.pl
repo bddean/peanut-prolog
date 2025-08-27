@@ -23,7 +23,7 @@ js(fn(generator, Body)) -->
 
 js(db_set(Module, Name, Arity, X)) -->
 	{
-		format(string(Key), "~w:~w/~w", [Module, Name, Arity])
+    atomics_to_string([Module, ":", Name, "/", Arity], Key)
 	},
 	"db_set(", js(\Key), ", ", X, ");\n".
 
@@ -32,7 +32,7 @@ js(db_set(Module, Name, Arity, X)) -->
 js(funcall(Module, Name, Args)) -->
 	{
 		length(Args, N),
-		format(string(Key), "~w:~w/~w", [Module, Name, N])
+    atomics_to_string([Module, ":", Name, "/", N], Key)
 	},
 	"db_get(", js(\Key), ")(", js_args(Args), ")".
 
@@ -64,7 +64,7 @@ js((Gen *-> Block)) -->
 
 % Term literals
 js(\'$PEANUT VAR'(N)) -->
-	{ format(string(Name), "~d", [N]) },
+	{ number_string(N, Name) },
 	!,
 	js($.(Name)).
 js(\[]) --> "Symbol.for(\"[|]\")", !.  % SWI specific thing
@@ -89,7 +89,8 @@ js($X) -->
 % Compiler-generated identifiers -- separate namespace from
 % user-visible idents like for predicate names.
 js($.(X)) -->
-	{ format(string(Prefixed), "_~s", [X]) },
+  { is_list(X) -> string_codes(S, X) ; S = X },
+	{ atomics_to_string(["_", S], Prefixed) },
 	"$", js($Prefixed).
 
 js(declare_module(Name)) -->

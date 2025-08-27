@@ -1,7 +1,7 @@
 self-hosting checklist:
 	[ ] :- use_module(library(readutil), [read_file_to_terms/3]).
-	[ ] format/3 (only some cases)
-		- e.g. format(string(Message), "Failed to compile clauses: ~w", [X])
+	[/] term_string(+, -) (prepreq to format/3)
+	[x] format/3 (only some cases)
 	[x] phrase/2 (both list concatenation and for calling dcgs)
 	[/] DCGs!
 	[/] atomics_to_string/2

@@ -43,7 +43,11 @@ terms_ir -->
 
 terms_ir__tform_(X, IR) :-
 	clauses_ir(X, IR) *-> true
-	; format(string(Message), "Failed to compile clauses: ~w", [X]),
+	;
+
+	%% TODO: should be format/3
+	term_string(X, XStr),
+	atomics_to_string(["Failed to compile clauses: ", XStr], Message),
 	domain_error(rule_or_directive, Message).
 
 % Compiles a list of Prolog clauses to an IR that can be passed to a backend

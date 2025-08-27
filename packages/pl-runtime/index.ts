@@ -134,10 +134,10 @@ function* unifyArgs(A: Val[], B: Val[], i = 0): Choices {
   }
 }
 
-const termString = (X: Val) => {
+const termString = (X: Val): string => {
   const val = deref(X);
   const s =
-    typeof val === "symbol" ? Symbol.keyFor(val)
+    typeof val === "symbol" ? (Symbol.keyFor(val) ?? "<Unknown Blob>")
       : Array.isArray(val) ? `#(${val.map(String).join(",")})`
         : String(val);
         return s;
@@ -297,3 +297,6 @@ export const def_fun = (
 }
 
 def_semidet("==", 2, isUnifiable);
+
+// TODO: term_string should be bidirectional and implemented in prolog
+def_fun("term_string", 2, termString);
