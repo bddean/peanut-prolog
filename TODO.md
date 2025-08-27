@@ -1,3 +1,5 @@
+instead of numbervars, use freeze(X, false)
+
 reconsiderign terms representation
 	dictionaries: {__proto__: null, [TagSym]: tag, ...kvs}
 
