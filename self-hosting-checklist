@@ -1,5 +1,3 @@
-[ ] BUG: maplist with unequal length --> ifn recursion somehow
-
 self-hosting checklist:
 	[	] domain_error(rule_or_directive, Message)
 		[ ] and errors lib in general...
