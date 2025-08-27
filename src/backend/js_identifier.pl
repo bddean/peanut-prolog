@@ -13,17 +13,19 @@ js_escape_ident(PlainAtom, EscapedAtom) :-
 transduce(PlainAtom, EscAtom) :-
         (   ground(PlainAtom)                       % ENCODE  (+,-)
         ->  atom_codes(PlainAtom, PlainCodes),
-            phrase(pair(PlainCodes), EscCodes),
+            pair(PlainCodes, EscCodes),
             atom_codes(EscAtom, EscCodes)
         ;                                           % DECODE  (-,+)
             atom_codes(EscAtom, EscCodes),
-            phrase(pair(PlainCodes), EscCodes),
+            pair(PlainCodes, EscCodes),
             atom_codes(PlainAtom, PlainCodes)
         ).
 
 /*======================================================================
    A single DCG that *relates* the two streams
   ======================================================================*/
+
+pair(A, B) :- pair(A, B, []).
 
 pair([])     --> [].
 pair([C|Cs]) --> pair_char(first, C),   pair_tail(Cs).

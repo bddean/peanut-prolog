@@ -126,13 +126,8 @@ compile_term_ir(Backend) -->
 compile_terms(Backend, Terms, Out) :-
 	terms_ir(Terms, IRs),
 	maplist(compile_term_ir(Backend), [file_start|IRs], OutCodes),
-	maplist(codes_to_string, OutCodes, Outs),
-	atomics_to_string(Outs, Out).
-
-% Helper to convert difference list codes to a string
-codes_to_string(Codes, String) :-
-	phrase(Codes, CodesList),
-	string_codes(String, CodesList).
+	append(OutCodes, AllCodes),
+	string_codes(Out, AllCodes).
 
 compile_file(Backend, FName, Out) :-
 	%% NOTE: This may be a self-referencing import. But apparently,

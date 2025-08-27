@@ -8,6 +8,8 @@ export class Var {
   }
   ref: Val | UnboundSym = UnboundSym;
   id = _vid++;
+  attrs: {[_ in Atom]?: Val} = {};
+
   *set(v: Val) {
     if (this.ref !== UnboundSym) return; // TODO skip this check for unify??
     try {
@@ -24,7 +26,6 @@ export class Var {
     if (val instanceof Var) return `_V${val.id}`;
     return String(val);
   }
-  attrs: {[_: Atom]?: Val} = {};
 }
 
 export const ArrayTag = Symbol.for("#");
