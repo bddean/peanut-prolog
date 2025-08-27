@@ -24,6 +24,7 @@ export class Var {
     if (val instanceof Var) return `_V${val.id}`;
     return String(val);
   }
+  attrs: {[_: Atom]?: Val} = {};
 }
 
 export const ArrayTag = Symbol.for("#");
