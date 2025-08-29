@@ -10,7 +10,7 @@ def_fun("get_string_code", 3, (s: Val, i: Val) => {
   if (typeof s !== "string") throw new Error("expected string");
   if (typeof i !== "number") throw new Error("expected number");
   if (i < 1 || i > s.length) throw new Error("out of bounds");
-  return s.charCodeAt(i-1);
+  return s.charCodeAt(i - 1);
 });
 
 // Peanut-specific function!
@@ -18,7 +18,7 @@ def_fun("get_string_char", 3, (s: Val, i: Val) => {
   if (typeof s !== "string") throw new Error("expected string");
   if (typeof i !== "number") throw new Error("expected number");
   if (i < 1 || i > s.length) throw new Error("out of bounds");
-  return Symbol.for(s[i-1]);
+  return Symbol.for(s[i - 1]);
 });
 
 def_fun("string_concat", 3, (a: Val, b: Val) => {
@@ -68,3 +68,59 @@ def_nondet("number_string", 2, function*(n: Val, s: Val) {
   return yield* unify_2(String(n), s);
 });
 
+
+// Useful reference:
+// https://sicstus.sics.se/sicstus/docs/3.7.1/html/sicstus_45.html#SEC371
+// https://web.archive.org/web/20240910004028/https://sicstus.sics.se/sicstus/docs/3.7.1/html/sicstus_45.html#SEC371
+//
+// https://www.swi-prolog.org/pldoc/man?section=syntax
+//
+// "v" flag instead of "u" flag. Maybe "u" is better fro compatibility?
+const identchars = "[\\p{Letter}0-9_]*"
+// TODO \uXXXX and \UXXXXXXXX
+const esc = [
+  `[btnvfreda]`,
+  `x[a-fA-F0-9]{2}`, // Hex char code
+  `[0-7]{1,3}`, // Octal char code
+  `\\^\\?`, // delete
+  `\\^[A-Za-z]`, // control characters
+  `c\\s*`,
+  `\\s`,
+  `.`
+].join("|");
+
+const positiveNumber = [
+  "0x[0-9a-fA-F]+",
+  "0o[0-7]+",
+  "0b[01]+",
+  "(?:\\d*[.]\\d+|\\d+)(?:e-?\\d+)?",
+].join("|");
+
+
+const tokenzRe = new RegExp([
+  `(?<quote_char>['"\`])(?<quotation>(?:\\\\(?:${esc})|(?!\\k<quote_char>)[^\\\\])*)\\k<quote_char>`,
+  "(?<ws>(?:\\s|\\n)+)",
+  "%(?<comment_line>.*$)",
+  "(?:/[*](?<comment_block>(?:[^*]|[*][^\\/])*)[*]/)",
+  `(?<number>-?${positiveNumber}+)`,
+  `(?<ident>[\\p{Letter}_]${identchars})`,
+  `(?<fullstop>[.])`,
+  `(?<symbol_word>[\\p{Symbol}\\p{Punctuation}]+)`,
+  "(?<solo>.)",
+  "(?<ERROR>(.|\\n)*)",
+].map(grp => `${grp}`).join("|"), "gmv");
+
+export const tokenz = (s: string) => {
+  console.log(tokenzRe);
+  // return tokenzRe.exec(s);
+  tokenzRe.lastIndex = 0;
+  const toks: any[] = [];
+  while (true) {
+    const result = tokenzRe.exec(s);
+    if (!result || !result[0] || !result.groups) break;
+    toks.push(Object.fromEntries(
+      Object.entries(result.groups).filter(
+        ([, v]) => v !== undefined)));
+  }
+  return toks;
+}
